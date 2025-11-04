@@ -604,7 +604,14 @@ def _build_resumo(pdf_path: Path, db_snippet: str, terms_query: List[str]) -> st
         else:
             resumo_src = "(sem trecho disponível no PDF para os termos buscados)"
     resumo_clean = apply_redaction(resumo_src)
+
+    # 🔧 Garante resumo de até 200 palavras
+    palavras = resumo_clean.split()
+    if len(palavras) > 200:
+        resumo_clean = " ".join(palavras[:200]) + " …"
+
     return highlight(resumo_clean, terms_query)
+
 
 # ---------------- UI e lógica principal ----------------
 hero("🔎 Pesquisa de Notas")
