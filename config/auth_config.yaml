@@ -1,0 +1,25 @@
+credentials:
+  usernames:
+    admin:
+      email: admin@inss.gov.br
+      name: Admin do Sistema
+      password: "123"
+      roles: ["ADMIN", "ANALISTA", "VISUALIZAR"]
+    analista1:
+      email: analista1@inss.gov.br
+      name: Analista DILAG
+      password: "123"
+      roles: ["ANALISTA", "VISUALIZAR"]
+    leitor1:
+      email: leitor1@inss.gov.br
+      name: Leitor
+      password: "$2b$12$troque-por-um-hash-bcrypt-valido"
+      roles: ["VISUALIZAR"]
+
+cookie:
+  name: "notas_tecnicas_auth"
+  expiry_days: 7
+  key: "CHAVE-DEV-APENAS"
+
+preauthorized:
+  emails: []
