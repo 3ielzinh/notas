@@ -595,23 +595,28 @@ def apply_redaction(text: str) -> str:
     return redact_with_blocklist(text, load_blocklist(), BLOCK_TOKEN)
 
 def _build_resumo(pdf_path: Path, db_snippet: str, terms_query: List[str]) -> str:
+    # tenta achar contexto no PDF (100 antes + 100 depois do termo)
     resumo_src = ""
     if pdf_path and pdf_path.exists():
         resumo_src = _pdf_context_snippet(pdf_path, terms_query, 100, 100)
+
+    # fallback: usa snippet do banco ou mensagem padrão
     if not resumo_src:
         if db_snippet and db_snippet.strip():
             resumo_src = db_snippet
         else:
             resumo_src = "(sem trecho disponível no PDF para os termos buscados)"
+
+    # aplica remoção/anonimização
     resumo_clean = apply_redaction(resumo_src)
 
-    # 🔧 Garante resumo de até 200 palavras
+    # garante no máx. 200 palavras
     palavras = resumo_clean.split()
     if len(palavras) > 200:
         resumo_clean = " ".join(palavras[:200]) + " …"
 
+    # mantém destaque dos termos
     return highlight(resumo_clean, terms_query)
-
 
 # ---------------- UI e lógica principal ----------------
 hero("🔎 Pesquisa de Notas")
