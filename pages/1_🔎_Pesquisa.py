@@ -594,16 +594,16 @@ def apply_redaction(text: str) -> str:
         return text or ""
     return redact_with_blocklist(text, load_blocklist(), BLOCK_TOKEN)
 
-def _build_resumo(pdf_path: Path, db_snippet: str, terms_query: List[str]) -> str:
-    import fitz, re
+def _build_resumo(pdf_path: Path, fallback_text: str, terms_query: List[str]) -> str:
+    import fitz
 
     resumo_src = ""
 
-    # 1️⃣ Tenta pegar trecho com os termos
+    # 1) Tenta contexto ao redor dos termos no PDF
     if pdf_path and pdf_path.exists():
         resumo_src = _pdf_context_snippet(pdf_path, terms_query, 100, 100)
 
-    # 2️⃣ Se o trecho for muito curto, pega as primeiras 200 palavras do PDF
+    # 2) Se vier vazio/curto (PDF scaneado, sem OCR), tenta primeiras 200 palavras do PDF
     if pdf_path and pdf_path.exists() and (not resumo_src or len(resumo_src.split()) < 30):
         try:
             with fitz.open(str(pdf_path)) as doc:
@@ -612,22 +612,23 @@ def _build_resumo(pdf_path: Path, db_snippet: str, terms_query: List[str]) -> st
                     texto += page.get_text("text") + " "
                     if len(texto.split()) >= 200:
                         break
-                resumo_src = " ".join(texto.split()[:200])
+                if texto.strip():
+                    resumo_src = " ".join(texto.split()[:200])
         except Exception:
             pass
 
-    # 3️⃣ Se ainda vazio, tenta usar o snippet do banco
-    if not resumo_src:
-        if db_snippet and db_snippet.strip():
-            resumo_src = db_snippet
+    # 3) Se ainda curto, usa o fallback (snippet do DB ou TEXTO do .txt já lido)
+    if not resumo_src or len(resumo_src.split()) < 30:
+        if fallback_text and fallback_text.strip():
+            resumo_src = " ".join(fallback_text.split()[:200])
         else:
-            resumo_src = "(sem trecho disponível no PDF para os termos buscados)"
+            resumo_src = "(sem trecho disponível no documento)"
 
-    # 4️⃣ Aplica anonimização e destaque
+    # 4) Anonimiza e destaca
     resumo_clean = apply_redaction(resumo_src)
     resumo_highlight = highlight(resumo_clean, terms_query)
 
-    # 5️⃣ Garante no máximo 200 palavras
+    # 5) Limite duro de 200 palavras
     palavras = resumo_highlight.split()
     if len(palavras) > 200:
         resumo_highlight = " ".join(palavras[:200]) + " …"
@@ -764,7 +765,8 @@ def render_item_layout(r: Dict[str, Any], terms_query: List[str]):
     nome = titulo_txt if titulo_txt else _cleanup_filename(arquivo or "(sem nome)")
 
     pdf_path_for_snippet = _resolve_pdf_path(ano, arquivo, caminho_txt)
-    resumo_html = _build_resumo(pdf_path_for_snippet, snippet, terms_query)
+    fallback_text = (snippet or "").strip() or full_text  # usa TXT quando snippet é curto/vazio
+    resumo_html = _build_resumo(pdf_path_for_snippet, fallback_text, terms_query)
 
     situacao = r.get("situacao")
     em_vigor = r.get("em_vigor", None)
@@ -781,7 +783,7 @@ def render_item_layout(r: Dict[str, Any], terms_query: List[str]):
             <div class="note-card {card_class}">
               <div class="note-title">{nome}</div>
               <div class="meta-line">{meta_line}</div>
-              <div class="note-resumo clamp-2">{resumo_html}</div>
+              <div class="note-resumo">{resumo_html}</div>
             </div>
             """,
             unsafe_allow_html=True,
