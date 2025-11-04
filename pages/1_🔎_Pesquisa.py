@@ -527,10 +527,17 @@ def _render_pdf_inline(pdf_path: Path, key_prefix: str):
 
     try:
         zoom = 200
-        mat = fitz.Matrix(zoom/100.0, zoom/100.0)
+        mat = fitz.Matrix(zoom / 100.0, zoom / 100.0)
         page = doc[int(page_idx) - 1]
         pix = page.get_pixmap(matrix=mat, alpha=False)
-        st.image(pix.tobytes("png"), use_container_width=True)
+        img_bytes = pix.tobytes("png")
+
+        # Compatibilidade: Streamlit novo (use_container_width) vs antigo (use_column_width)
+        try:
+            st.image(img_bytes, use_container_width=True)
+        except TypeError:
+            st.image(img_bytes, use_column_width=True)
+
     except Exception as e:
         st.warning(f"Falha ao renderizar: {e}")
     finally:
