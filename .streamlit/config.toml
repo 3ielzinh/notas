@@ -1,0 +1,11 @@
+# .streamlit/config.toml
+[client]
+showSidebarNavigation = false
+
+[theme]
+base = "light"
+primaryColor = "#0A5AA6"              # azul INSS
+backgroundColor = "#F5F7FA"           # cinza claro do fundo
+secondaryBackgroundColor = "#FFFFFF"  # cartões/containers
+textColor = "#1E293B"                 # texto
+font = "sans serif"
