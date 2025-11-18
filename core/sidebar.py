@@ -60,8 +60,8 @@ def _styled_logout(cfg: dict):
 # -----------------------------
 def render_sidebar():
     """Sidebar com:
-       1) Navegação (Pesquisa sempre; Importação/Configuração/Admin se logado e com permissão)
-       2) Acesso (Entrar/Sair) sem auto-login da sessão anterior e sem chaves duplicadas
+        1) Navegação (Pesquisa sempre; Importação/Configuração/Admin se logado e com permissão)
+        2) Acesso (Entrar/Sair) sem auto-login da sessão anterior e sem chaves duplicadas
     """
     # Perfil padrão VISUALIZAR para visitantes
     if USER_ROLES not in st.session_state:
@@ -74,12 +74,18 @@ def render_sidebar():
     # --------------------------------
     # Navegação controlada
     # --------------------------------
-    st.header("🧭 Navegação")
+    st.header("Menu de Navegação")
     st.page_link("pages/1_🔎_Pesquisa.py", label="Pesquisa", icon="🔎")
 
     if auth_status:
         st.page_link("pages/2_📥_Importacao.py", label="Importação", icon="📥")
         st.page_link("pages/3_🛠️_Configuracao_Nota.py", label="Configuração da Nota", icon="🛠️")
+        # Página para usuários logados
+        st.page_link("pages/6_📖_Guia.py", label="Guia", icon="📖")
+    else:
+        # Página para visitantes não logados
+        st.page_link("pages/5_❓_Ajuda.py", label="Ajuda", icon="❓")
+
 
     st.divider()
 
@@ -128,7 +134,7 @@ def render_sidebar():
         # Renderiza formulário de login na sidebar
         auth.login(
             location="sidebar",
-            fields={"Form name": "🔐 Entrar"},
+            fields={"Form name": "Entrar"},
             key="login_sidebar",
         )
 

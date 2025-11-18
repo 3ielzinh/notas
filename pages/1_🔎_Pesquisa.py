@@ -12,27 +12,24 @@ import streamlit as st
 from core.ui import hero, section
 from core.sidebar import render_sidebar
 
+# ---------------------------------
+# Configuração base
+# ---------------------------------
 st.set_page_config(page_title="Pesquisa de Notas", page_icon="🔎", layout="wide")
 
+# Sidebar padrão do projeto
 with st.sidebar:
     render_sidebar()
 
-# =======================
-# ESTILO / ASSETS
-# =======================
+# ---------------------------------
+# Caminhos e utilitários de estilo (Atualizado)
+# ---------------------------------
 ROOT = Path(__file__).resolve().parents[1]
 STYLES_PATH = ROOT / "styles" / "style.css"
 ASSETS_PATH = ROOT / "assets"
 
-def load_css(path: Path = STYLES_PATH):
-    try:
-        if path.exists():
-            css = path.read_text(encoding="utf-8")
-            st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
-    except Exception as e:
-        st.warning(f"Falha ao carregar CSS: {e}")
-
 def file_to_b64(path: Path) -> str:
+    """Converte um arquivo para string base64."""
     try:
         if path.exists():
             return base64.b64encode(path.read_bytes()).decode("utf-8")
@@ -40,97 +37,111 @@ def file_to_b64(path: Path) -> str:
         pass
     return ""
 
-# 🔙 Repor logo/título no header via pseudo-elementos
+def load_css(path: Path = STYLES_PATH):
+    """Carrega o CSS global do projeto (styles/style.css)."""
+    try:
+        if path.exists():
+            css = path.read_text(encoding="utf-8")
+            st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
+    except Exception as e:
+        st.warning(f"Falha ao carregar CSS: {e}")
+
 def get_logo_b64() -> tuple[str, str]:
-    """
-    Retorna (logo_b64, mime) tentando primeiro SVG e depois PNG.
-    mime será 'image/svg+xml' ou 'image/png'.
-    """
+    """Tenta logo.svg; se não houver, usa inss_logo.png. Retorna (b64, mime)."""
     svg_b64 = file_to_b64(ASSETS_PATH / "logo.svg")
     if svg_b64:
         return svg_b64, "image/svg+xml"
-    png_b64 = file_to_b64(ASSETS_PATH / "inss_logo.png")
+    png_b64 = file_to_b64(ASSETS_PATH / "logo.png")
     if png_b64:
         return png_b64, "image/png"
     return "", ""
 
-def inject_header_with_logo(title_text: str = "REPOSITÓRIO DE NOTAS TÉCNICAS DO INSS"):
+def inject_custom_header(
+    title_text: str = "REPOSITÓRIO DE NOTAS TÉCNICAS - DILAG",
+    subtitle_text: str = "Diretoria de Gestão de Pessoas - DGP"
+):
     """
-    Injeta apenas o conteúdo visual do header (logo à esquerda + título centralizado).
-    Usa vars do seu style.css (header já está fixo lá).
+    Injeta logo, título e subtítulo no header usando CSS, e também os estilos
+    específicos da página de pesquisa (badges, cards, etc.).
     """
-    try:
-        logo_b64, logo_mime = get_logo_b64()
-    except Exception:
-        logo_b64, logo_mime = "", ""
+    logo_b64, logo_mime = get_logo_b64()
 
-    css = ["<style>"]
-    if logo_b64 and logo_mime:
-        css.append(f"""
-        [data-testid="stHeader"]::before {{
-          content: "";
-          position: absolute;
-          left: calc(var(--toggle-safe) + 8px);
-          top: 50%;
-          transform: translateY(-50%);
-          width: 130px;
-          height: 30px;
-          background-image: url("data:{logo_mime};base64,{logo_b64}");
-          background-repeat: no-repeat;
-          background-size: contain;
-          opacity: 1;
-          pointer-events: none;
-          z-index: 0;
+    header_css = f"""
+    <style>
+        /* --- Injeção do Header --- */
+        [data-testid="stHeader"] {{
+            /* 1. Injeta a logo como background */
+            background-image: url("data:{logo_mime};base64,{logo_b64}");
+            background-repeat: no-repeat;
+            background-size: 130px; /* Tamanho da logo */
+            background-position: calc(var(--toggle-safe) + 8px) center; /* Posição à esquerda */
         }}
-        """)
-    css.append(f"""
-    [data-testid="stHeader"]::after {{
-      content: "{title_text}";
-      position: absolute;
-      left: 0; right: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      text-align: center;
-      font-weight: 800;
-      font-size: 18px;
-      color: var(--header-fg);
-    }}
-    /* ====== Ajustes rápidos para status PARCIAL ====== */
-    .badge.parcial {{
-      display:inline-block;
-      padding:2px 10px;
-      border-radius:999px;
-      font-weight:700;
-      font-size:12px;
-      background:#FEF3C7;
-      color:#92400E;
-      border:1px solid #F59E0B22;
-    }}
-    .note-card.parcial {{
-      border-left:6px solid #F59E0B; /* âmbar */
-    }}
-    .note-justif {{
-      margin-top:8px;
-      padding:8px 10px;
-      border-radius:10px;
-      background:#FFFBEB;
-      border:1px solid #FDE68A;
-      font-size:13px;
-      color:#78350F;
-    }}
+
+        /* 2. Usa ::before para o TÍTULO */
+        [data-testid="stHeader"]::before {{
+            content: "{title_text}";
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            /* Empurra o título um pouco para cima para dar espaço ao subtítulo */
+            transform: translateY(-80%);
+            text-align: center;
+            font-weight: 800;
+            font-size: 22px;
+            color: var(--header-fg);
+        }}
+
+        /* 3. Usa ::after para o SUBTÍTULO */
+        [data-testid="stHeader"]::after {{
+            content: "{subtitle_text}";
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            text-align: center;
+            font-weight: 400; /* Mais leve */
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.85); /* Cor discreta */
+        }}
+
+        /* --- Estilos Específicos da Página de Pesquisa --- */
+        .badge.parcial {{
+            display:inline-block;
+            padding:2px 10px;
+            border-radius:999px;
+            font-weight:700;
+            font-size:12px;
+            background:#FEF3C7;
+            color:#92400E;
+            border:1px solid #F59E0B22;
+        }}
+        .note-card.parcial {{
+            border-left:6px solid #F59E0B; /* âmbar */
+        }}
+        .note-justif {{
+            margin-top:8px;
+            padding:8px 10px;
+            border-radius:10px;
+            background:#FFFBEB;
+            border:1px solid #FDE68A;
+            font-size:13px;
+            color:#78350F;
+        }}
     </style>
-    """)
-    st.markdown("".join(css), unsafe_allow_html=True)
+    """
+    st.markdown(header_css, unsafe_allow_html=True)
 
-# carrega CSS global + volta a injetar título/logo nesta página
+# Carrega o CSS global e injeta o header customizado
 load_css()
-inject_header_with_logo()
+inject_custom_header()
 
+# O restante do seu arquivo continua inalterado a partir daqui...
 DB_PATH = Path("data/processed/notas.db")
 PAGE_SIZE = 20
 
 # ============================
-# Config de anonimização/remoção
+# Config de anonimização/remoção
 # ============================
 BLOCKLIST_CSV = Path("data/terms/termos_excluir.csv")
 BLOCK_TOKEN = "[REMOVIDO]"
@@ -180,14 +191,11 @@ def _fts_exists(conn: sqlite3.Connection) -> bool:
         "SELECT 1 FROM sqlite_master WHERE type='table' AND name='fts_notas'"
     ).fetchone() is not None
 
-def _year_clause(table_alias: str = "n") -> str:
-    # cláusula para filtrar pelo ano (n.ano = ?)
-    return f" AND {table_alias}.ano = ? "
-
-def search_db(user_query: str, limit: int, offset: int, year_filter: str | None = None):
+def search_db(user_query: str, limit: int, offset: int, year_filter: Any = None):
     """
-    Busca no banco com FTS quando disponível.
-    Se 'year_filter' vier preenchido (ex.: '2025'), restringe os resultados ao ano informado.
+    Busca no banco. Se user_query == "__ALL__" -> retorna todas as notas (com opcional filtro de ano).
+    Caso contrário, usa FTS/LICE/LIKE conforme disponível. year_filter pode ser None ou um valor (ex.: 2024).
+    Retorna: (rows, total, mecanismo)
     """
     if not DB_PATH.exists():
         st.error("Banco de dados não encontrado. Rode o script de indexação (build_db_from_txts.py).")
@@ -201,6 +209,46 @@ def search_db(user_query: str, limit: int, offset: int, year_filter: str | None 
     rows = []
     total = 0
 
+    # Normaliza filtro de ano
+    year_val = None
+    if year_filter not in (None, "", "Todas", "Todos"):
+        try:
+            year_val = int(year_filter)
+        except Exception:
+            year_val = str(year_filter)
+
+    # Caso especial: pedir todas as notas
+    if user_query == "__ALL__":
+        mecanismo = "ALL"
+        if year_val is None:
+            sql_rows = """
+            SELECT sha, ano, arquivo, snippet, caminho_txt,
+                   em_vigor, situacao, justificativa_situacao,
+                   0.0 AS score
+            FROM notas
+            ORDER BY imported_at DESC
+            LIMIT ? OFFSET ?
+            """
+            rows = cur.execute(sql_rows, (limit, offset)).fetchall()
+            total = cur.execute("SELECT COUNT(*) FROM notas").fetchone()[0]
+        else:
+            sql_rows = """
+            SELECT sha, ano, arquivo, snippet, caminho_txt,
+                   em_vigor, situacao, justificativa_situacao,
+                   0.0 AS score
+            FROM notas
+            WHERE ano = ?
+            ORDER BY imported_at DESC
+            LIMIT ? OFFSET ?
+            """
+            rows = cur.execute(sql_rows, (year_val, limit, offset)).fetchall()
+            total = cur.execute("SELECT COUNT(*) FROM notas WHERE ano = ?", (year_val,)).fetchone()[0]
+
+        rows = [dict(r) for r in rows] if rows else []
+        conn.close()
+        return rows, int(total), mecanismo
+
+    # Caso normal: busca por query (FTS / LIKE)
     q_fts = build_fts_query_AND_prefix(user_query)
 
     fts_ok = False
@@ -209,93 +257,119 @@ def search_db(user_query: str, limit: int, offset: int, year_filter: str | None 
     except Exception:
         fts_ok = False
 
-    # ---------- FTS5 ----------
+    # --- FTS5 branch ---
     if q_fts and fts_ok:
         mecanismo = "FTS5"
-        year_sql = _year_clause("n") if year_filter else ""
-        params_rows = [q_fts]
-        params_count = [q_fts]
-        if year_filter:
-            params_rows.append(year_filter)
-            params_count.append(year_filter)
-        params_rows.extend([limit, offset])
-
+        where_year = "AND n.ano = ? " if year_val is not None else ""
+        params_rows = (q_fts, year_val, limit, offset) if year_val is not None else (q_fts, limit, offset)
         sql_rows = f"""
         SELECT n.sha, n.ano, n.arquivo, n.snippet, n.caminho_txt,
                n.em_vigor, n.situacao, n.justificativa_situacao,
                bm25(fts_notas) AS score
         FROM fts_notas
         JOIN notas n ON n.sha = fts_notas.sha
-        WHERE fts_notas MATCH ? {year_sql}
+        WHERE fts_notas MATCH ?
+        {where_year}
         ORDER BY score ASC
         LIMIT ? OFFSET ?
         """
-        rows = cur.execute(sql_rows, tuple(params_rows)).fetchall()
+        try:
+            rows = cur.execute(sql_rows, params_rows).fetchall()
+        except Exception:
+            rows = []
 
         sql_count = f"""
         SELECT COUNT(*) FROM (
             SELECT 1
             FROM fts_notas
             JOIN notas n ON n.sha = fts_notas.sha
-            WHERE fts_notas MATCH ? {year_sql}
+            WHERE fts_notas MATCH ?
+            {where_year}
         )
         """
-        total = cur.execute(sql_count, tuple(params_count)).fetchone()[0]
+        try:
+            total = cur.execute(sql_count, (q_fts, year_val) if year_val is not None else (q_fts,)).fetchone()[0]
+        except Exception:
+            total = 0
 
         if total > 0 and not rows:
             removed = _cleanup_orfaos(conn)
-            rows = cur.execute(sql_rows, tuple(params_rows)).fetchall()
-            total = cur.execute(sql_count, tuple(params_count)).fetchone()[0]
+            try:
+                rows = cur.execute(sql_rows, params_rows).fetchall()
+                total = cur.execute(sql_count, (q_fts, year_val) if year_val is not None else (q_fts,)).fetchone()[0]
+            except Exception:
+                pass
             if removed:
                 st.info(f"Índice ajustado automaticamente ({removed} órfão(s) removido(s)).")
 
         if total == 0:
-            # fallback FTS5+LIKE (com ano se fornecido)
             mecanismo = "FTS5+LIKE"
             terms = tokenize_query(user_query)
             if terms:
                 like_ands = " AND ".join(["snippet LIKE ?"] * len(terms))
-                year_and = " AND ano = ? " if year_filter else ""
                 params = [f"%{t}%" for t in terms]
-                if year_filter:
-                    params.append(year_filter)
-                sql_rows2 = f"""
-                SELECT sha, ano, arquivo, snippet, caminho_txt,
-                       em_vigor, situacao, justificativa_situacao,
-                       0.0 AS score
-                FROM notas
-                WHERE {like_ands} {year_and}
-                ORDER BY imported_at DESC
-                LIMIT ? OFFSET ?
-                """
-                params_rows2 = params + [limit, offset]
-                rows = cur.execute(sql_rows2, tuple(params_rows2)).fetchall()
-                sql_count2 = f"SELECT COUNT(*) FROM notas WHERE {like_ands} {year_and}"
-                total = cur.execute(sql_count2, tuple(params)).fetchone()[0]
+                if year_val is not None:
+                    params = [year_val] + params
+                    sql_rows2 = f"""
+                    SELECT sha, ano, arquivo, snippet, caminho_txt,
+                           em_vigor, situacao, justificativa_situacao,
+                           0.0 AS score
+                    FROM notas
+                    WHERE ano = ? AND {like_ands}
+                    ORDER BY imported_at DESC
+                    LIMIT ? OFFSET ?
+                    """
+                    rows = cur.execute(sql_rows2, (*params, limit, offset)).fetchall()
+                    sql_count2 = f"SELECT COUNT(*) FROM notas WHERE ano = ? AND {like_ands}"
+                    total = cur.execute(sql_count2, (*params,)).fetchone()[0]
+                else:
+                    sql_rows2 = f"""
+                    SELECT sha, ano, arquivo, snippet, caminho_txt,
+                           em_vigor, situacao, justificativa_situacao,
+                           0.0 AS score
+                    FROM notas
+                    WHERE {like_ands}
+                    ORDER BY imported_at DESC
+                    LIMIT ? OFFSET ?
+                    """
+                    rows = cur.execute(sql_rows2, (*params, limit, offset)).fetchall()
+                    sql_count2 = f"SELECT COUNT(*) FROM notas WHERE {like_ands}"
+                    total = cur.execute(sql_count2, (*params,)).fetchone()[0]
 
-    # ---------- LIKE puro ----------
+    # --- LIKE branch (no FTS) ---
     if total == 0 and (not q_fts or not fts_ok):
         mecanismo = "LIKE"
         terms = tokenize_query(user_query)
         if terms:
             like_ands = " AND ".join(["snippet LIKE ?"] * len(terms))
-            year_and = " AND ano = ? " if year_filter else ""
             params = [f"%{t}%" for t in terms]
-            if year_filter:
-                params.append(year_filter)
-            sql_rows = f"""
-            SELECT sha, ano, arquivo, snippet, caminho_txt,
-                   em_vigor, situacao, justificativa_situacao,
-                   0.0 AS score
-            FROM notas
-            WHERE {like_ands} {year_and}
-            ORDER BY imported_at DESC
-            LIMIT ? OFFSET ?
-            """
-            params_rows = params + [limit, offset]
-            rows = cur.execute(sql_rows, tuple(params_rows)).fetchall()
-            sql_count = f"SELECT COUNT(*) FROM notas WHERE {like_ands} {year_and}"
-            total = cur.execute(sql_count, tuple(params)).fetchone()[0]
+            if year_val is not None:
+                params = [year_val] + params
+                sql_rows = f"""
+                SELECT sha, ano, arquivo, snippet, caminho_txt,
+                       em_vigor, situacao, justificativa_situacao,
+                       0.0 AS score
+                FROM notas
+                WHERE ano = ? AND {like_ands}
+                ORDER BY imported_at DESC
+                LIMIT ? OFFSET ?
+                """
+                rows = cur.execute(sql_rows, (*params, limit, offset)).fetchall()
+                sql_count = f"SELECT COUNT(*) FROM notas WHERE ano = ? AND {like_ands}"
+                total = cur.execute(sql_count, (*params,)).fetchone()[0]
+            else:
+                sql_rows = f"""
+                SELECT sha, ano, arquivo, snippet, caminho_txt,
+                       em_vigor, situacao, justificativa_situacao,
+                       0.0 AS score
+                FROM notas
+                WHERE {like_ands}
+                ORDER BY imported_at DESC
+                LIMIT ? OFFSET ?
+                """
+                rows = cur.execute(sql_rows, (*params, limit, offset)).fetchall()
+                sql_count = f"SELECT COUNT(*) FROM notas WHERE {like_ands}"
+                total = cur.execute(sql_count, (*params,)).fetchone()[0]
         else:
             rows, total = [], 0
 
@@ -527,17 +601,10 @@ def _render_pdf_inline(pdf_path: Path, key_prefix: str):
 
     try:
         zoom = 200
-        mat = fitz.Matrix(zoom / 100.0, zoom / 100.0)
+        mat = fitz.Matrix(zoom/100.0, zoom/100.0)
         page = doc[int(page_idx) - 1]
         pix = page.get_pixmap(matrix=mat, alpha=False)
-        img_bytes = pix.tobytes("png")
-
-        # Compatibilidade: Streamlit novo (use_container_width) vs antigo (use_column_width)
-        try:
-            st.image(img_bytes, use_container_width=True)
-        except TypeError:
-            st.image(img_bytes, use_column_width=True)
-
+        st.image(pix.tobytes("png"), use_container_width=True)
     except Exception as e:
         st.warning(f"Falha ao renderizar: {e}")
     finally:
@@ -594,63 +661,21 @@ def apply_redaction(text: str) -> str:
         return text or ""
     return redact_with_blocklist(text, load_blocklist(), BLOCK_TOKEN)
 
-def _build_resumo(pdf_path: Path, fallback_text: str, terms_query: List[str]) -> str:
-    import fitz
-
+def _build_resumo(pdf_path: Path, db_snippet: str, terms_query: List[str]) -> str:
     resumo_src = ""
-
-    # 1) Tenta contexto ao redor dos termos no PDF
     if pdf_path and pdf_path.exists():
         resumo_src = _pdf_context_snippet(pdf_path, terms_query, 100, 100)
-
-    # 2) Se vier vazio/curto (PDF scaneado, sem OCR), tenta primeiras 200 palavras do PDF
-    if pdf_path and pdf_path.exists() and (not resumo_src or len(resumo_src.split()) < 30):
-        try:
-            with fitz.open(str(pdf_path)) as doc:
-                texto = ""
-                for page in doc:
-                    texto += page.get_text("text") + " "
-                    if len(texto.split()) >= 200:
-                        break
-                if texto.strip():
-                    resumo_src = " ".join(texto.split()[:200])
-        except Exception:
-            pass
-
-    # 3) Se ainda curto, usa o fallback (snippet do DB ou TEXTO do .txt já lido)
-    if not resumo_src or len(resumo_src.split()) < 30:
-        if fallback_text and fallback_text.strip():
-            resumo_src = " ".join(fallback_text.split()[:200])
+    if not resumo_src:
+        if db_snippet and db_snippet.strip():
+            resumo_src = db_snippet
         else:
-            resumo_src = "(sem trecho disponível no documento)"
-
-    # 4) Anonimiza e destaca
+            resumo_src = "(sem trecho disponível no PDF para os termos buscados)"
     resumo_clean = apply_redaction(resumo_src)
-    resumo_highlight = highlight(resumo_clean, terms_query)
-
-    # 5) Limite duro de 200 palavras
-    palavras = resumo_highlight.split()
-    if len(palavras) > 200:
-        resumo_highlight = " ".join(palavras[:200]) + " …"
-
-    return resumo_highlight
-
+    return highlight(resumo_clean, terms_query)
 
 # ---------------- UI e lógica principal ----------------
-hero("🔎 Pesquisa de Notas")
+hero("Pesquisa de Notas")
 
-with st.container(border=True):
-    st.markdown("### ⚠️ Aviso Importante – Repositório de Notas Técnicas DILAG")
-    st.markdown(
-        "Este repositório reúne todas as Notas Técnicas já emitidas pela DILAG, "
-        "independentemente de o entendimento nelas expresso permanecer ou não vigente.\n\n"
-        "Ressalta-se que as Notas Técnicas não devem ser utilizadas como fundamento exclusivo "
-        "para a tomada de decisões. O valor do material está nos fundamentos e interpretações "
-        "contidos nos documentos, sendo indispensável verificar previamente a vigência e a "
-        "atualidade dos normativos e dispositivos legais citados.\n\n"
-        "A utilização das informações aqui disponíveis sem essa verificação pode resultar em "
-        "decisões baseadas em entendimentos ultrapassados ou revogados."
-    )
 
 q = st.text_input(
     "Pesquise por palavra-chave...",
@@ -658,29 +683,31 @@ q = st.text_input(
     placeholder="ex.: abono permanência 2024"
 )
 
-# ---------- ÚNICO FILTRO: PERÍODO (ANO) ----------
-def get_available_years() -> List[str]:
-    anos: List[str] = []
+# --- FILTRO: somente por ANO (com opção "Todas") ---
+def get_year_options():
+    opts = ["Todas"]
     try:
         if DB_PATH.exists():
             conn = sqlite3.connect(DB_PATH)
             cur = conn.cursor()
-            cur.execute("SELECT DISTINCT ano FROM notas WHERE TRIM(ano) <> ''")
+            cur.execute("SELECT DISTINCT ano FROM notas ORDER BY ano DESC")
             rows = cur.fetchall()
+            for r in rows:
+                val = r[0]
+                if val is None or str(val).strip() == "":
+                    continue
+                opts.append(str(val))
             conn.close()
-            anos = [str(r[0]) for r in rows if r and r[0] not in (None, "", "Sem ano")]
     except Exception:
         pass
-    # ordena desc (mais recentes primeiro)
-    try:
-        anos_sorted = sorted(anos, key=lambda x: int(x), reverse=True)
-    except Exception:
-        anos_sorted = sorted(anos, reverse=True)
-    return anos_sorted
+    return opts
 
-anos_opts = ["Todos"] + get_available_years()
-periodo = st.selectbox("Período (ano)", options=anos_opts, index=0, key="filtro_periodo")
+col_filtros = st.columns([1])
+with col_filtros[0]:
+    year_opts = get_year_options()
+    selected_year = st.selectbox("Ano", year_opts, index=0)
 
+# estado de paginação / busca
 if "pesq_offset" not in st.session_state:
     st.session_state.pesq_offset = 0
 if "pesq_last_query" not in st.session_state:
@@ -689,8 +716,6 @@ if "open_sha" not in st.session_state:
     st.session_state.open_sha = None
 if "pesq_submitted" not in st.session_state:
     st.session_state.pesq_submitted = False
-if "last_periodo" not in st.session_state:
-    st.session_state.last_periodo = "Todos"
 
 def do_search():
     st.session_state.pesq_offset = 0
@@ -701,29 +726,32 @@ st.button("Buscar", type="primary", on_click=do_search, key="btn_buscar")
 
 section("Resultados")
 
+# Quando não submeteu ainda
 if not st.session_state.pesq_submitted:
     st.info("Informe termos de pesquisa e clique em Buscar.")
     st.stop()
 
-if not q.strip():
-    st.warning("Digite pelo menos 2 caracteres para pesquisar.")
-    st.stop()
+# Se o usuário quer ver todas as notas do banco e não forneceu query:
+if (not q.strip()) and (selected_year == "Todas"):
+    # usamos um marcador especial para retornar tudo
+    search_term = "__ALL__"
+else:
+    # seja a query do usuário (pode ser vazia, mas aí search_db tratará)
+    search_term = q.strip()
 
-# Reseta paginação se termo ou ano mudarem
-if q.strip() != st.session_state.pesq_last_query or periodo != st.session_state.last_periodo:
+# evita repetir pagina quando query mudou
+if q.strip() != st.session_state.pesq_last_query:
     st.session_state.pesq_last_query = q.strip()
-    st.session_state.last_periodo = periodo
     st.session_state.pesq_offset = 0
 
-year_filter = None if periodo == "Todos" else str(periodo)
-
-rows, total, mecanismo = search_db(q, PAGE_SIZE, st.session_state.pesq_offset, year_filter)
+# chama a busca com filtro de ano (selected_year pode ser "Todas")
+rows, total, mecanismo = search_db(search_term, PAGE_SIZE, st.session_state.pesq_offset, year_filter=(None if selected_year in ("Todas", "Todos") else selected_year))
 
 if total == 0:
     st.write("Nenhum resultado encontrado.")
     st.stop()
 
-st.caption(f"{total} resultado(s) • mecanismo: {mecanismo}")
+st.caption(f"{total} resultado(s)")
 
 terms = tokenize_query(q)
 
@@ -742,8 +770,10 @@ def _badge_and_class(situacao: str | None, em_vigor: Any) -> Tuple[str, str]:
     s = (situacao or "").strip().lower()
     if s.startswith("parcial"):
         return '<span class="badge parcial">PARCIAL</span>', "parcial"
+    # Se vier sem situacao, cai no fallback por em_vigor
     if s.startswith("revog"):
         return '<span class="badge revogada">REVOGADA</span>', "revogada"
+    # fallback por em_vigor quando situacao não está definida
     if em_vigor in (0, "0", False, "False"):
         return '<span class="badge revogada">REVOGADA</span>', "revogada"
     return '<span class="badge vigente">VIGENTE</span>', "vigente"
@@ -765,14 +795,14 @@ def render_item_layout(r: Dict[str, Any], terms_query: List[str]):
     nome = titulo_txt if titulo_txt else _cleanup_filename(arquivo or "(sem nome)")
 
     pdf_path_for_snippet = _resolve_pdf_path(ano, arquivo, caminho_txt)
-    fallback_text = (snippet or "").strip() or full_text  # usa TXT quando snippet é curto/vazio
-    resumo_html = _build_resumo(pdf_path_for_snippet, fallback_text, terms_query)
+    resumo_html = _build_resumo(pdf_path_for_snippet, snippet, terms_query)
 
     situacao = r.get("situacao")
     em_vigor = r.get("em_vigor", None)
     justificativa = (r.get("justificativa_situacao") or "").strip()
     situacao_badge, card_class = _badge_and_class(situacao, em_vigor)
 
+    # monta linha meta já com observação junto ao badge
     meta_line = f"{ano} • {situacao_badge}"
     if justificativa and (card_class in ("revogada", "parcial")):
         meta_line += f" — <span class='note-justif-inline'>Pela: {justificativa}</span>"
@@ -783,7 +813,7 @@ def render_item_layout(r: Dict[str, Any], terms_query: List[str]):
             <div class="note-card {card_class}">
               <div class="note-title">{nome}</div>
               <div class="meta-line">{meta_line}</div>
-              <div class="note-resumo">{resumo_html}</div>
+              <div class="note-resumo clamp-2">{resumo_html}</div>
             </div>
             """,
             unsafe_allow_html=True,
