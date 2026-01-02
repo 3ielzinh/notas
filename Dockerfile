@@ -8,14 +8,16 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
 # Instala dependências do sistema para PostgreSQL e PDF
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
     postgresql-client \
     libpq-dev \
     gcc \
     g++ \
     make \
     cmake \
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Copia requirements e instala dependências Python
 COPY requirements.txt .
