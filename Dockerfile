@@ -15,9 +15,8 @@ RUN apt-get update && \
     gcc \
     g++ \
     make \
-    cmake \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    cmake && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copia requirements e instala dependências Python
 COPY requirements.txt .
