@@ -1,5 +1,5 @@
 # Dockerfile para Django - Sistema de Notas Técnicas
-# Otimizado para ambientes com memória limitada
+# Otimizado para ambientes com memória MUITO limitada
 FROM python:3.14.2-slim
 
 # Variáveis de ambiente
@@ -12,16 +12,11 @@ ENV PYTHONUNBUFFERED=1 \
 # Diretório de trabalho
 WORKDIR /app
 
-# Instala apenas dependências de runtime (SEM build tools)
-# psycopg-binary já vem compilado, não precisa gcc
-RUN rm -f /etc/apt/apt.conf.d/docker-clean && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends \
-        postgresql-client \
-        libpq5 \
-    && rm -rf /var/lib/apt/lists/*
+# Não instala postgresql-client (não é essencial, só para debug)
+# psycopg[binary] já tem tudo que precisa
+RUN rm -f /etc/apt/apt.conf.d/docker-clean
 
-# Copia e instala dependências Python
+# Copia e instala dependências Python PRIMEIRO
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
