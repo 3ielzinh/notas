@@ -20,10 +20,7 @@ RUN echo 'APT::Update::Post-Invoke-Success {};' > /etc/apt/apt.conf.d/99-disable
     postgresql-client \
     libpq-dev \
     gcc \
-    g++ \
-    make \
-    cmake && \
-    rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
 # Copia requirements e instala dependências Python
 COPY requirements.txt .
