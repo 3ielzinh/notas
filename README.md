@@ -13,9 +13,9 @@ Sistema web para gerenciamento, pesquisa e anonimização de notas técnicas do 
 
 ## 📋 Requisitos
 
-- **Python 3.14+**
-- **Django 6.0**
+- **Docker & Docker Compose**
 - **Git**
+- **PostgreSQL 15** (via Docker)
 
 ## 🏗️ Estrutura do Projeto
 
@@ -40,91 +40,78 @@ django_notas_inss/
 │
 ├── templates/                 # Templates globais
 ├── static/                    # Arquivos estáticos
-├── media/                     # Uploads
-└── data/                      # Banco de dados
+└── data/                      # Backups
 ```
 
-## 🐍 Instalação Local
+## � Instalação com Docker
 
 ### 1. Clone o repositório
 
 ```bash
-git clone <url-do-repositorio>
-cd django_notas_inss
+git clone https://www-gitinss.prevnet/dgrt/notas_dilag.git
+cd notas_dilag
 ```
 
-### 2. Crie o ambiente virtual
-
-```bash
-# Windows
-python -m venv venv
-.\venv\Scripts\Activate.ps1
-
-# Linux/Mac
-python3 -m venv venv
-source venv/bin/activate
-```
-
-### 3. Instale as dependências
-
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Configure as variáveis de ambiente
+### 2. Configure as variáveis de ambiente
 
 ```bash
 # Copie o arquivo de exemplo
 cp .env.example .env
 
-# Edite o arquivo .env com suas configurações
+# Edite o arquivo .env (ajuste DB_PASSWORD se necessário)
 ```
 
-### 5. Execute as migrações
+### 3. Suba os containers
 
 ```bash
-python manage.py migrate
+docker-compose up -d
 ```
 
-### 6. Crie um superusuário
+### 4. Execute as migrações
 
 ```bash
-python manage.py createsuperuser
+docker-compose exec web python manage.py migrate
 ```
 
-### 7. Inicie o servidor
+### 5. Crie um superusuário
 
 ```bash
-python manage.py runserver
+docker-compose exec web python manage.py createsuperuser
 ```
 
-A aplicação estará disponível em: **http://127.0.0.1:8000/**
+A aplicação estará disponível em: **http://localhost:8000/**
+
+> 📖 Para deploy em produção, consulte [DEPLOY.md](DEPLOY.md) ou [QUICKSTART.md](QUICKSTART.md)
 
 ## 🔧 Comandos Úteis
 
 ```bash
-# Verificar configuração
-python manage.py check
+# Ver logs
+docker-compose logs -f web
+
+# Parar containers
+docker-compose down
 
 # Criar migrações
-python manage.py makemigrations
+docker-compose exec web python manage.py makemigrations
 
 # Aplicar migrações
-python manage.py migrate
+docker-compose exec web python manage.py migrate
 
-# Criar superusuário
-python manage.py createsuperuser
+# Shell do Django
+docker-compose exec web python manage.py shell
 
-# Coletar arquivos estáticos
-python manage.py collectstatic
+# Shell do banco de dados
+docker-compose exec db psql -U postgres -d django_notas
 
-# Rodar testes
-pytest
+# Backup do banco
+docker-compose exec db pg_dump -U postgres django_notas > backup.sql
 ```
 
 ## 📚 Documentação
 
-- **Planejamento**: Ver [PLANEJAMENTO.md](PLANEJAMENTO.md) para detalhes completos da migração
+- **Deploy Produção**: [DEPLOY.md](DEPLOY.md) - Guia completo de deployment
+- **Quick Start**: [QUICKSTART.md](QUICKSTART.md) - Início rápido (5 minutos)
 - **Django Docs**: https://docs.djangoproject.com/
 
 ## 🔒 Níveis de Acesso
@@ -137,32 +124,39 @@ pytest
 
 - **Framework**: Django 6.0
 - **Python**: 3.14.2
-- **Banco de Dados**: SQLite3 (desenvolvimento) / PostgreSQL (produção)
-- **Processamento PDF**: PyMuPDF, pikepdf
-- **Frontend**: Django Templates + Bootstrap/Tailwind
+- **Banco de Dados**: PostgreSQL 15
+- **Container**: Docker + Docker Compose
+- **Web Server**: Gunicorn (dev) / Nginx + Gunicorn (prod)
+- **Processamento PDF**: PyMuPDF (fitz)
+- **Frontend**: Django Templates + CSS customizado
 
 ## 📝 Status do Projeto
 
-**Fase Atual**: Fase 2 Completa ✅ | Fase 3 em Planejamento 🚧
+**Status**: ✅ Produção Ready
 
-- [x] Fase 1: Estrutura Base
-- [x] Fase 2: Models e Migrações
-  - [x] Models implementados (Term, Note, UserProfile)
-  - [x] Django Admin configurado
-  - [x] Banco de dados populado com dados de exemplo
-  - [x] Django 6.0 instalado (compatível com Python 3.14)
-- [ ] Fase 3: Autenticação e Autorização (próxima)
+- [x] Estrutura completa com Django 6.0 + Python 3.14
+- [x] Autenticação e autorização por níveis
+- [x] Sistema de pesquisa e filtros avançados
+- [x] Anonimização automática (SIAPE, CPF, Nomes)
+- [x] Processamento de PDFs com context-aware
+- [x] Suporte a acentos e variações
+- [x] Docker Compose (dev + produção)
+- [x] Nginx reverse proxy + SSL ready
+- [x] Sistema de backup automatizado
+- [x] PDFs armazenados em database (BinaryField)
 
-**Acesso ao Admin**: http://127.0.0.1:8000/admin/  
-**Credenciais**: `admin` / `admin123`
+**Acesso ao Admin**: http://localhost:8000/admin/
 
 ## 📞 Suporte
 
-Para dúvidas e suporte, consulte a documentação no arquivo [PLANEJAMENTO.md](PLANEJAMENTO.md).
+Para dúvidas sobre deployment, consulte:
+- [DEPLOY.md](DEPLOY.md) - Guia completo de produção
+- [QUICKSTART.md](QUICKSTART.md) - Início rápido
 
 ---
 
-**Data de Criação**: 31/12/2025  
-**Versão**: 1.0.0  
+**Última Atualização**: 02/01/2026  
+**Versão**: 2.0.0  
 **Python**: 3.14.2  
-**Django**: 6.0
+**Django**: 6.0  
+**PostgreSQL**: 15
