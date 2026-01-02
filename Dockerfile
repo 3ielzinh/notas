@@ -11,10 +11,10 @@ ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
 # Diretório de trabalho no container
 WORKDIR /app
 
-# Remove scripts problemáticos do APT e instala dependências
-RUN rm -f /etc/apt/apt.conf.d/docker-clean && \
-    mkdir -p /var/cache/apt/archives/partial && \
-    mkdir -p /var/lib/apt/periodic && \
+# Desabilita hooks do APT e instala dependências
+RUN echo 'APT::Update::Post-Invoke-Success {};' > /etc/apt/apt.conf.d/99-disable-hooks && \
+    echo 'APT::Update::Post-Invoke {};' >> /etc/apt/apt.conf.d/99-disable-hooks && \
+    rm -f /etc/apt/apt.conf.d/docker-clean && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
     postgresql-client \
