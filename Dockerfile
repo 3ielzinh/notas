@@ -12,7 +12,9 @@ ENV PYTHONUNBUFFERED=1 \
 WORKDIR /app
 
 # Instala dependências do sistema (mínimas para PostgreSQL e build de psycopg)
-RUN apt-get update && \
+RUN rm -f /etc/apt/apt.conf.d/docker-clean && \
+    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache && \
+    apt-get update && \
     apt-get install -y --no-install-recommends \
         postgresql-client \
         libpq5 \
