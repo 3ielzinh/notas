@@ -25,7 +25,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Cria diretórios necessários
-RUN mkdir -p /app/media/pdfs /app/staticfiles /app/data/backups
+RUN mkdir -p /app/staticfiles /app/data/backups
 
 # Coleta arquivos estáticos
 RUN python manage.py collectstatic --noinput || true
@@ -34,8 +34,8 @@ RUN python manage.py collectstatic --noinput || true
 EXPOSE 8000
 
 # Script de inicialização
-COPY docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-ENTRYPOINT ["/docker-entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
