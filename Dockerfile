@@ -4,6 +4,10 @@ FROM python:3.14.2-slim
 # Evita buffering de logs Python
 ENV PYTHONUNBUFFERED=1
 
+# Evita problemas com apt-get
+ENV DEBIAN_FRONTEND=noninteractive
+ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
+
 # Diretório de trabalho no container
 WORKDIR /app
 
