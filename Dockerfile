@@ -1,30 +1,33 @@
 # Dockerfile para Django - Sistema de Notas Técnicas
 FROM python:3.14.2-slim
 
-# Evita buffering de logs Python
-ENV PYTHONUNBUFFERED=1
+# Variáveis de ambiente
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    DEBIAN_FRONTEND=noninteractive \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Evita problemas com apt-get
-ENV DEBIAN_FRONTEND=noninteractive
-ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
-
-# Diretório de trabalho no container
+# Diretório de trabalho
 WORKDIR /app
 
-# Desabilita hooks do APT e instala dependências
-RUN echo 'APT::Update::Post-Invoke-Success {};' > /etc/apt/apt.conf.d/99-disable-hooks && \
-    echo 'APT::Update::Post-Invoke {};' >> /etc/apt/apt.conf.d/99-disable-hooks && \
-    rm -f /etc/apt/apt.conf.d/docker-clean && \
-    apt-get update && \
+# Instala dependências do sistema (mínimas para PostgreSQL e build de psycopg)
+RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    postgresql-client \
-    libpq-dev \
-    gcc \
-    && rm -rf /var/lib/apt/lists/*
+        postgresql-client \
+        libpq5 \
+        libpq-dev \
+        gcc \
+        libc6-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
-# Copia requirements e instala dependências Python
+# Copia e instala dependências Python
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Remove gcc e build tools após instalação (reduz tamanho da imagem)
+RUN apt-get purge -y --auto-remove gcc libc6-dev libpq-dev
 
 # Copia código da aplicação
 COPY . .
@@ -35,12 +38,16 @@ RUN mkdir -p /app/staticfiles /app/data/backups
 # Coleta arquivos estáticos
 RUN python manage.py collectstatic --noinput || true
 
-# Expõe porta 8000
-EXPOSE 8000
-
 # Script de inicialização
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
+# Expõe porta 8000
+EXPOSE 8000
+
+# Usuário não-root para segurança (opcional mas recomendado)
+RUN useradd -m -u 1000 django && chown -R django:django /app
+USER django
+
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
+CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "300"]
