@@ -18,7 +18,12 @@ RUN rm -f /etc/apt/apt.conf.d/docker-clean
 
 # Copia e instala dependências Python PRIMEIRO
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --progress-bar off --no-deps \
+    Django==6.0 python-dotenv==1.0.0 gunicorn==21.2.0 whitenoise==6.6.0 && \
+    pip install --no-cache-dir --progress-bar off --no-deps \
+    "psycopg[binary]>=3.2.10" && \
+    pip install --no-cache-dir --progress-bar off --no-deps \
+    openpyxl==3.1.2 pypdf>=4.0.0 PyMuPDF>=1.24.0 reportlab>=4.0.0
 
 # Copia código da aplicação
 COPY . .
