@@ -2,8 +2,9 @@
 set -e
 
 echo "Aguardando PostgreSQL estar disponível..."
-while ! pg_isready -h db -p 5432 -U ${DB_USER:-postgres} > /dev/null 2>&1; do
-    sleep 1
+until python -c "import psycopg; psycopg.connect('host=${DB_HOST:-db} port=${DB_PORT:-5432} user=${DB_USER:-postgres} password=${DB_PASSWORD} dbname=${DB_NAME:-django_notas}').close()" 2>/dev/null; do
+    echo "Aguardando conexão com banco..."
+    sleep 2
 done
 
 echo "PostgreSQL disponível! Aplicando migrações..."
