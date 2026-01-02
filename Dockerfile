@@ -11,6 +11,10 @@ ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
 # Diretório de trabalho no container
 WORKDIR /app
 
+# Cria diretórios do apt-get e configura para evitar erros de limpeza
+RUN mkdir -p /var/cache/apt/archives/partial && \
+    echo 'APT::Update::Post-Invoke-Success { "touch /var/lib/apt/periodic/update-success-stamp 2>/dev/null || true"; };' > /etc/apt/apt.conf.d/99-custom
+
 # Instala dependências do sistema para PostgreSQL e PDF
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
