@@ -1,0 +1,321 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuração de Notas - Repositório de Notas Técnicas</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/notes.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+
+        .config-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #0a5aa6 0%, #084a8c 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .page-header h1 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 800;
+        }
+
+        .page-header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .search-box {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-form input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .search-form input:focus {
+            outline: none;
+            border-color: #0a5aa6;
+            box-shadow: 0 0 0 3px rgba(10, 90, 166, 0.1);
+        }
+
+        .btn-search {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #0a5aa6 0%, #084a8c 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-search:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(10, 90, 166, 0.3);
+        }
+
+        .year-section {
+            margin-bottom: 40px;
+        }
+
+        .year-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 5px solid #0a5aa6;
+        }
+
+        .year-header h2 {
+            margin: 0;
+            color: #0a5aa6;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .note-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .note-card:hover {
+            border-color: #0a5aa6;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .note-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .note-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            flex: 1;
+        }
+
+        .note-badges {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge-vigente {
+            background: #DCFCE7;
+            color: #166534;
+        }
+
+        .badge-parcial {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+
+        .badge-revogada {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+
+        .badge-neutral {
+            background: #E5E7EB;
+            color: #374151;
+        }
+
+        .note-snippet {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .note-actions {
+            display: flex;
+            gap: 10px;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .btn-edit {
+            padding: 10px 20px;
+            background: #0a5aa6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-edit:hover {
+            background: #084a8c;
+            transform: translateY(-1px);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .no-results svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #0a5aa6;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: all 0.2s;
+        }
+
+        .back-link:hover {
+            gap: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="layout-with-sidebar">
+        <!-- Header -->
+        {% include 'includes/header.html' %}
+        
+        <!-- Sidebar -->
+        {% include 'includes/sidebar.html' %}
+        
+        <!-- Conteúdo Principal -->
+        <main class="main-content">
+            <div class="config-container">
+                <a href="{% url 'notes:search' %}" class="back-link">
+                    ← Voltar para pesquisa
+                </a>
+
+                <div class="page-header">
+                    <h1>🛠️ Configuração de Notas</h1>
+                    <p>Edite notas técnicas: título, ano, situação e conteúdo</p>
+                </div>
+
+        <div class="search-box">
+            <form method="get" class="search-form">
+                <input 
+                    type="text" 
+                    name="q" 
+                    value="{{ query }}"
+                    placeholder="Pesquisar nota para editar..." 
+                    autofocus
+                >
+                <button type="submit" class="btn-search">🔍 Buscar</button>
+            </form>
+        </div>
+
+        {% if query %}
+            <p class="mb-20 text-gray">
+                Resultados para: <strong>{{ query }}</strong>
+            </p>
+        {% endif %}
+
+        {% if notes_by_year %}
+            {% for year, year_notes in notes_by_year.items %}
+                <div class="year-section">
+                    <div class="year-header">
+                        <h2>Ano {{ year }}</h2>
+                    </div>
+
+                    {% for note in year_notes %}
+                        <div class="note-card">
+                            <div class="note-card-header">
+                                <div class="note-title">{{ note.note_name }}</div>
+                                <div class="note-badges">
+                                    {% if note.situacao == 'vigente' %}
+                                        <span class="badge badge-vigente">VIGENTE</span>
+                                    {% elif note.situacao == 'parcialmente_revogada' %}
+                                        <span class="badge badge-parcial">PARCIALMENTE REVOGADA</span>
+                                    {% elif note.situacao == 'revogada' %}
+                                        <span class="badge badge-revogada">REVOGADA</span>
+                                    {% else %}
+                                        <span class="badge badge-neutral">NÃO CLASSIFICADA</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="note-snippet">
+                                {{ note.sanitized_text|truncatewords:50 }}
+                            </div>
+
+                            <div class="note-actions">
+                                <a href="{% url 'notes:config_edit' note.pk %}?q={{ query }}" class="btn-edit">
+                                    ✏️ Editar Nota
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-results">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <h3>Nenhuma nota encontrada</h3>
+                <p>{% if query %}Tente outros termos de busca.{% else %}Use a busca acima para encontrar notas.{% endif %}</p>
+            </div>
+        {% endif %}
+            </div>
+        </main>
+    </div>
+</body>
+</html>
+

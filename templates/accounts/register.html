@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Conta - Repositório de Notas Técnicas</title>
+    <link rel="stylesheet" href="/static/css/auth.css">
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-header">
+            <h1>📝 Criar Conta</h1>
+            <p>Repositório de Notas Técnicas - DILAG</p>
+            <p class="text-primary font-14 mt-10">Últilize seu e-mail institucional @inss.gov.br</p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="error-message">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+                {{ form.email }}
+                {% if form.email.help_text %}
+                    <small class="form-text">{{ form.email.help_text }}</small>
+                {% endif %}
+                {% if form.email.errors %}
+                    <div class="field-errors">
+                        <ul>
+                            {% for error in form.email.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.password1.id_for_label }}">{{ form.password1.label }}</label>
+                {{ form.password1 }}
+                {% if form.password1.help_text %}
+                    <small class="form-text">{{ form.password1.help_text }}</small>
+                {% endif %}
+                {% if form.password1.errors %}
+                    <div class="field-errors">
+                        <ul>
+                            {% for error in form.password1.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.password2.id_for_label }}">{{ form.password2.label }}</label>
+                {{ form.password2 }}
+                {% if form.password2.errors %}
+                    <div class="field-errors">
+                        <ul>
+                            {% for error in form.password2.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn-register">Criar Conta</button>
+        </form>
+
+        <div class="register-footer">
+            <p>Já tem uma conta?</p>
+            <a href="{% url 'accounts:login' %}">Fazer login</a>
+        </div>
+    </div>
+</body>
+</html>

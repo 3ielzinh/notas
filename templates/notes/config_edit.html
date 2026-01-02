@@ -1,0 +1,328 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Nota - {{ note.note_name }}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/notes.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+
+        .edit-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #0a5aa6 0%, #084a8c 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .page-header h1 {
+            margin: 0 0 10px 0;
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        .page-header p {
+            margin: 0;
+            opacity: 0.9;
+        }
+
+        .edit-form {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #0a5aa6;
+            box-shadow: 0 0 0 3px rgba(10, 90, 166, 0.1);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 400px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            line-height: 1.6;
+        }
+
+        select.form-control {
+            cursor: pointer;
+        }
+
+        .help-text {
+            display: block;
+            margin-top: 5px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            padding-top: 30px;
+            border-top: 2px solid #f0f0f0;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0a5aa6 0%, #084a8c 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(10, 90, 166, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #0a5aa6;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: all 0.2s;
+        }
+
+        .back-link:hover {
+            gap: 12px;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .conditional-field {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 3px solid #ffc107;
+        }
+
+        .note-info {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid #0a5aa6;
+        }
+
+        .note-info strong {
+            color: #0a5aa6;
+        }
+    </style>
+</head>
+<body>
+    <div class="layout-with-sidebar">
+        <!-- Header -->
+        {% include 'includes/header.html' %}
+        
+        <!-- Sidebar -->
+        {% include 'includes/sidebar.html' %}
+        
+        <!-- Conteúdo Principal -->
+        <main class="main-content">
+            <div class="edit-container">
+                <a href="{% url 'notes:config_list' %}{% if query %}?q={{ query }}{% endif %}" class="back-link">
+                    ← Voltar para lista
+                </a>
+
+                <div class="page-header">
+                    <h1>✏️ Editar Nota Técnica</h1>
+                    <p>{{ note.note_name }} - {{ note.note_year|default:"S/A" }}</p>
+                </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="note-info">
+            <strong>Hash:</strong> {{ note.source_hash|truncatechars:20 }} | 
+            <strong>Criado:</strong> {{ note.created_at|date:"d/m/Y H:i" }} | 
+            <strong>Atualizado:</strong> {{ note.updated_at|date:"d/m/Y H:i" }}
+        </div>
+
+        <form method="post" class="edit-form">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="{{ form.note_name.id_for_label }}">{{ form.note_name.label }}</label>
+                {{ form.note_name }}
+                {% if form.note_name.help_text %}
+                    <small class="help-text">{{ form.note_name.help_text }}</small>
+                {% endif %}
+                {% if form.note_name.errors %}
+                    {% for error in form.note_name.errors %}
+                        <div class="error-message">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.note_year.id_for_label }}">{{ form.note_year.label }}</label>
+                {{ form.note_year }}
+                {% if form.note_year.help_text %}
+                    <small class="help-text">{{ form.note_year.help_text }}</small>
+                {% endif %}
+                {% if form.note_year.errors %}
+                    {% for error in form.note_year.errors %}
+                        <div class="error-message">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.situacao.id_for_label }}">{{ form.situacao.label }}</label>
+                {{ form.situacao }}
+                {% if form.situacao.errors %}
+                    {% for error in form.situacao.errors %}
+                        <div class="error-message">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <div class="form-group d-none" id="justificativa-field">
+                <div class="conditional-field">
+                    <label for="{{ form.justificativa.id_for_label }}">{{ form.justificativa.label }}</label>
+                    {{ form.justificativa }}
+                    {% if form.justificativa.errors %}
+                        {% for error in form.justificativa.errors %}
+                            <div class="error-message">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.sanitized_text.id_for_label }}">{{ form.sanitized_text.label }}</label>
+                {{ form.sanitized_text }}
+                <small class="help-text">
+                    Este é o texto que será pesquisável no sistema. 
+                    Caracteres: <span id="char-count">{{ note.sanitized_text|length }}</span>
+                </small>
+                {% if form.sanitized_text.errors %}
+                    {% for error in form.sanitized_text.errors %}
+                        <div class="error-message">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">💾 Salvar Alterações</button>
+                <a href="{% url 'notes:config_list' %}{% if query %}?q={{ query }}{% endif %}" class="btn btn-secondary">✖ Cancelar</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Mostra/esconde campo de justificativa baseado na situação
+        const situacaoSelect = document.getElementById('{{ form.situacao.id_for_label }}');
+        const justificativaField = document.getElementById('justificativa-field');
+
+        function toggleJustificativa() {
+            const value = situacaoSelect.value;
+            if (value === 'parcialmente_revogada' || value === 'revogada') {
+                justificativaField.style.display = 'block';
+            } else {
+                justificativaField.style.display = 'none';
+            }
+        }
+
+        situacaoSelect.addEventListener('change', toggleJustificativa);
+        toggleJustificativa(); // Inicializa
+
+        // Contador de caracteres
+        const textArea = document.getElementById('{{ form.sanitized_text.id_for_label }}');
+        const charCount = document.getElementById('char-count');
+
+        textArea.addEventListener('input', function() {
+            charCount.textContent = this.value.length;
+        });
+    </script>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
+

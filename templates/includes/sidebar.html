@@ -1,0 +1,115 @@
+{% load static %}
+<!-- Sidebar de Navegação -->
+<nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="logo-wrapper">
+            <div class="logo">
+                <img src="{% static 'assets/logo.svg' %}" alt="Logo DILAG" class="logo-image">
+            </div>
+        </div>
+        
+        <!-- Botão Toggle -->
+        <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle Sidebar">
+            <span class="toggle-icon">☰</span>
+        </button>
+    </div>
+
+    <!-- User Info (se logado) -->
+    {% if user.is_authenticated %}
+    <div class="sidebar-user">
+        <div class="user-avatar">{{ user.username|slice:":1"|upper }}</div>
+        <div class="user-details">
+            <div class="user-name">{{ user.username }}</div>
+            <div class="user-role">{{ user.profile.get_role_display }}</div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Menu de Navegação -->
+    <ul class="sidebar-menu">
+        <li class="menu-item">
+            <a href="{% url 'notes:search' %}" class="menu-link {% if request.resolver_match.url_name == 'search' %}active{% endif %}">
+                <span class="menu-icon">🔎</span>
+                <span class="menu-text">Pesquisa</span>
+            </a>
+        </li>
+        
+        <li class="menu-item">
+            <a href="{% url 'core:manual' %}" class="menu-link {% if request.resolver_match.url_name == 'manual' %}active{% endif %}">
+                <span class="menu-icon">📖</span>
+                <span class="menu-text">Manual</span>
+            </a>
+        </li>
+        
+        <li class="menu-item">
+            <a href="{% url 'core:help' %}" class="menu-link {% if request.resolver_match.url_name == 'help' %}active{% endif %}">
+                <span class="menu-icon">❓</span>
+                <span class="menu-text">Ajuda</span>
+            </a>
+        </li>
+
+        {% if user.is_authenticated %}
+        <!-- Opções apenas para usuários logados -->
+        
+        {% if user.profile.role == 'ANALISTA' or user.profile.role == 'ADMIN' %}
+        <li class="menu-divider"></li>
+        <li class="menu-item">
+            <a href="{% url 'notes:config_list' %}" class="menu-link {% if request.resolver_match.url_name == 'config_list' or request.resolver_match.url_name == 'config_edit' %}active{% endif %}">
+                <span class="menu-icon">🛠️</span>
+                <span class="menu-text">Configurar Notas</span>
+            </a>
+        </li>
+        {% endif %}
+        
+        {% if user.profile.role == 'ADMIN' %}
+        <li class="menu-item">
+            <a href="/admin/" class="menu-link">
+                <span class="menu-icon">⚙️</span>
+                <span class="menu-text">Administração</span>
+            </a>
+        </li>
+        {% endif %}
+        {% endif %}
+    </ul>
+
+    <!-- Botão de Login/Logout -->
+    <div class="sidebar-footer">
+        {% if user.is_authenticated %}
+        <a href="{% url 'accounts:logout' %}" class="sidebar-btn btn-logout">
+            <span class="btn-icon">🚪</span>
+            <span class="btn-text">Sair</span>
+        </a>
+        {% else %}
+        <a href="{% url 'accounts:login' %}" class="sidebar-btn btn-login">
+            <span class="btn-icon">🔐</span>
+            <span class="btn-text">Entrar</span>
+        </a>
+        {% endif %}
+    </div>
+</nav>
+
+<script>
+// Toggle Sidebar
+document.addEventListener('DOMContentLoaded', function() {
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('sidebarToggle');
+    const mainContent = document.querySelector('.main-content');
+    
+    // Recupera estado salvo
+    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+    if (isCollapsed) {
+        sidebar.classList.add('collapsed');
+        mainContent.classList.add('sidebar-collapsed');
+    }
+    
+    toggleBtn.addEventListener('click', function() {
+        sidebar.classList.toggle('collapsed');
+        mainContent.classList.toggle('sidebar-collapsed');
+        
+        // Salva estado
+        const collapsed = sidebar.classList.contains('collapsed');
+        localStorage.setItem('sidebarCollapsed', collapsed);
+    });
+});
+</script>
+

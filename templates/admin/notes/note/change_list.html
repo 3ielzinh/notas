@@ -1,0 +1,13 @@
+{% extends "admin/change_list.html" %}
+{% load static %}
+
+{% block object-tools-items %}
+    {{ block.super }}
+    {% if show_import_button %}
+    <li>
+        <a href="{% url 'admin:notes_note_import_pdf' %}" class="addlink" style="background-color: #2196F3; color: white;">
+            📄 Importar PDF
+        </a>
+    </li>
+    {% endif %}
+{% endblock %}

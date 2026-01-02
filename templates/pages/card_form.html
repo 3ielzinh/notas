@@ -1,0 +1,346 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Card - Repositório de Notas Técnicas</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/manual.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        /* Estilos específicos para o formulário de edição */
+        .edit-form-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .edit-form-header {
+            background: linear-gradient(135deg, #0a5aa6 0%, #084a8c 100%);
+            color: white;
+            padding: 25px 30px;
+            margin: -40px -40px 30px -40px;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .edit-form-header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .edit-form-header p {
+            margin: 10px 0 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .form-group label .required {
+            color: #dc3545;
+            margin-left: 3px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.2s ease;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #0a5aa6;
+            box-shadow: 0 0 0 3px rgba(10, 90, 166, 0.1);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 150px;
+            font-family: 'Consolas', 'Courier New', monospace;
+        }
+
+        .form-help-text {
+            font-size: 13px;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .form-check {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: #f5f7fa;
+            border-radius: 8px;
+        }
+
+        .form-check-input {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .form-check-label {
+            cursor: pointer;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 35px;
+            padding-top: 25px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .btn-form {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0a5aa6 0%, #084a8c 100%);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(10, 90, 166, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            color: #721c24;
+        }
+
+        .alert ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .current-card-preview {
+            background: #f5f7fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #0a5aa6;
+            margin-bottom: 25px;
+        }
+
+        .current-card-preview h3 {
+            color: #0a5aa6;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .current-card-preview .preview-content {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="layout-with-sidebar">
+        <!-- Header -->
+        {% include 'includes/header.html' %}
+        
+        <!-- Sidebar -->
+        {% include 'includes/sidebar.html' %}
+        
+        <!-- Conteúdo Principal -->
+        <main class="main-content">
+            <div class="edit-form-container">
+                <div class="edit-form-header">
+                    <h1>
+                        {% if is_new %}
+                        <i class="fas fa-plus-circle"></i>
+                        Criar Novo Card
+                        {% else %}
+                        <i class="fas fa-edit"></i>
+                        Editar Card
+                        {% endif %}
+                    </h1>
+                    {% if not is_new %}
+                    <p>Editando: <strong>{{ card.title }}</strong></p>
+                    {% else %}
+                    <p>Criando novo card para: <strong>{{ page|upper }}</strong></p>
+                    {% endif %}
+                </div>
+
+                <!-- Preview do card atual (só no modo edição) -->
+                {% if not is_new %}
+                <div class="current-card-preview">
+                    <h3>📝 Visualização Atual</h3>
+                    <div class="preview-content">
+                        <strong>{{ card.title }}</strong><br>
+                        {{ card.content|safe }}
+                        {% if card.link %}
+                        <br><br>
+                        <a href="{{ card.link }}" target="_blank" style="color: #0a5aa6; text-decoration: none;">
+                            <i class="fas fa-external-link-alt"></i> {{ card.link }}
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Mensagens de erro -->
+                {% if form.errors %}
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <div>
+                        <strong>Erro ao salvar:</strong>
+                        <ul>
+                            {% for field, errors in form.errors.items %}
+                                {% for error in errors %}
+                                    <li>{{ field }}: {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Formulário -->
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="{{ form.title.id_for_label }}">
+                            {{ form.title.label }}
+                            <span class="required">*</span>
+                        </label>
+                        {{ form.title }}
+                        {% if form.title.help_text %}
+                        <div class="form-help-text">{{ form.title.help_text }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.content.id_for_label }}">
+                            {{ form.content.label }}
+                            <span class="required">*</span>
+                        </label>
+                        {{ form.content }}
+                        {% if form.content.help_text %}
+                        <div class="form-help-text">{{ form.content.help_text }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.link.id_for_label }}">
+                            {{ form.link.label }}
+                        </label>
+                        {{ form.link }}
+                        {% if form.link.help_text %}
+                        <div class="form-help-text">{{ form.link.help_text }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.card_type.id_for_label }}">
+                            {{ form.card_type.label }}
+                        </label>
+                        {{ form.card_type }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.order.id_for_label }}">
+                            {{ form.order.label }}
+                        </label>
+                        {{ form.order }}
+                        {% if form.order.help_text %}
+                        <div class="form-help-text">{{ form.order.help_text }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-check">
+                            {{ form.is_active }}
+                            <label for="{{ form.is_active.id_for_label }}" class="form-check-label">
+                                {{ form.is_active.label }}
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-form btn-primary">
+                            <i class="fas fa-save"></i>
+                            {% if is_new %}Criar Card{% else %}Salvar Alterações{% endif %}
+                        </button>
+                        <a href="{% if page == 'help' %}{% url 'core:help' %}?edit=1{% else %}{% url 'core:manual' %}?edit=1{% endif %}" class="btn-form btn-secondary">
+                            <i class="fas fa-times"></i>
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Auto-focus no primeiro campo
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstInput = document.querySelector('.form-control');
+            if (firstInput) {
+                firstInput.focus();
+            }
+        });
+    </script>
+</body>
+</html>

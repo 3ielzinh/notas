@@ -1,0 +1,26 @@
+# Django e Core
+Django==6.0
+python-dotenv==1.0.0
+gunicorn==21.2.0
+whitenoise==6.6.0
+
+# Database - psycopg3 (compatível com Python 3.14)
+psycopg[binary]>=3.2.10
+
+# Importação de planilhas
+openpyxl==3.1.2
+
+# Processamento de PDF
+pypdf>=4.0.0
+PyMuPDF>=1.24.0
+reportlab>=4.0.0
+
+# Testes (Development)
+pytest==7.4.3
+pytest-django==4.7.0
+pytest-cov==4.1.0
+
+# Qualidade de Código (Development)
+black==23.12.1
+flake8==7.0.0
+isort==5.13.2

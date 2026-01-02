@@ -1,0 +1,203 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual DGP - Repositório de Notas Técnicas</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/manual.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <div class="layout-with-sidebar">
+        <!-- Header -->
+        {% include 'includes/header.html' %}
+        
+        <!-- Sidebar -->
+        {% include 'includes/sidebar.html' %}
+        
+        <!-- Conteúdo Principal -->
+        <main class="main-content">
+            <div class="container">
+                {% if edit_mode %}
+                <div class="edit-mode-banner">
+                    <div>
+                        <strong>⚠️ Modo de Edição Ativado</strong><br>
+                        <small>Clique nos botões de editar ou excluir para modificar os cards.</small>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Informações do Manual -->
+                <div class="manual-info-box">
+                    <h1>📚 {{ page_title }}</h1>
+                    {% if page_content %}
+                        <div class="editable-content">
+                            {{ page_content.content|safe }}
+                        </div>
+                        <p class="manual-date"><em>Última atualização: {{ page_content.updated_at|date:"d/m/Y H:i" }}</em></p>
+                    {% else %}
+                        <p><strong>Manual aprovado pela Portaria DGP/INSS nº 18, de 28 de novembro de 2022</strong></p>
+                        <p>Atualizado pela Portaria DGP/INSS nº 33, de 06 de outubro de 2023</p>
+                    {% endif %}
+                </div>
+
+                <!-- Campo de Busca -->
+                <div class="search-box">
+                    <form method="get" class="search-form">
+                        <input 
+                            type="text" 
+                            name="q" 
+                            class="search-input" 
+                            placeholder="🔍 Digite palavras-chave para buscar nos capítulos..." 
+                            value="{{ request.GET.q }}"
+                        >
+                        {% if edit_mode %}
+                        <input type="hidden" name="edit" value="1">
+                        {% endif %}
+                        <button type="submit" class="btn-search">🔍 Buscar</button>
+                    </form>
+                </div>
+
+                <!-- Título da Seção -->
+                <div class="results-header">
+                    <h2>📖 Capítulos ({{ capitulos.count }})</h2>
+                    {% if user.is_authenticated and user.profile.role in 'ADMIN,ANALISTA' %}
+                        {% if edit_mode %}
+                        <div style="display: flex; gap: 10px;">
+                            <a href="{% url 'core:card_create' 'manual' %}?edit=1" class="btn-search btn-add" title="Adicionar Novo Capítulo">
+                                ✚
+                            </a>
+                            <a href="{% url 'core:manual' %}" class="btn-search btn-exit-edit" title="Sair do Modo de Edição">
+                                ✖ Sair do Modo de Edição
+                            </a>
+                        </div>
+                        {% else %}
+                        <a href="?edit=1" class="btn-search" title="Editar Cards">
+                            ✏️
+                        </a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+
+                <!-- Lista de Capítulos -->
+                <div class="capitulos-grid">
+                    {% for cap in capitulos %}
+                    <div class="capitulo-card-manual" data-numero="{{ cap.order }}" data-titulo="{{ cap.title }}" data-content="{{ cap.content }}">
+                        <div class="capitulo-content">
+                            <h3 class="capitulo-titulo-manual">{{ cap.title }}</h3>
+                            <div class="capitulo-descricao-manual">{{ cap.content|safe }}</div>
+                            {% if cap.link %}
+                            <div class="card-link-box" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0;">
+                                <a href="{{ cap.link }}" target="_blank" rel="noopener noreferrer" class="card-link">
+                                    🔗 Clique para ler mais
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% if edit_mode and user.profile.role in 'ADMIN,ANALISTA' %}
+                        <div class="card-side-buttons">
+                            <a href="{% url 'core:card_edit' cap.pk %}?edit=1" class="btn-side-action btn-side-edit">
+                                ✏️
+                            </a>
+                            {% if user.profile.role == 'ADMIN' %}
+                            <form method="post" action="{% url 'core:card_delete' cap.pk %}" class="delete-form" data-card-title="{{ cap.title }}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-side-action btn-side-delete">
+                                    🗑️
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <div class="no-results">
+                        <h3>Nenhum capítulo encontrado</h3>
+                        <p>{% if request.GET.q %}Nenhum capítulo corresponde à sua busca "{{ request.GET.q }}"{% else %}Nenhum capítulo cadastrado.{% endif %}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Filtrar capítulos no lado do cliente para busca instantânea
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.querySelector('.search-input');
+            const cards = document.querySelectorAll('.capitulo-card-manual');
+            
+            if (searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    const query = e.target.value.toLowerCase();
+                    
+                    cards.forEach(card => {
+                        const titulo = card.querySelector('.capitulo-titulo-manual').textContent.toLowerCase();
+                        const descricao = card.querySelector('.capitulo-descricao-manual').textContent.toLowerCase();
+                        const numero = card.dataset.numero || '';
+                        
+                        if (titulo.includes(query) || descricao.includes(query) || numero.includes(query)) {
+                            card.style.display = 'flex';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                });
+            }
+            // Confirmação de exclusão personalizada
+            const deleteForms = document.querySelectorAll('.delete-form');
+            deleteForms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const cardTitle = this.dataset.cardTitle;
+                    const modal = document.createElement('div');
+                    modal.className = 'confirm-modal';
+                    modal.innerHTML = `
+                        <div class="confirm-modal-content">
+                            <div class="confirm-modal-header">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <h3>Confirmar Exclusão</h3>
+                            </div>
+                            <div class="confirm-modal-body">
+                                <p>Tem certeza que deseja excluir o capítulo:</p>
+                                <p class="confirm-card-title">"${cardTitle}"</p>
+                                <p class="confirm-warning">Esta ação não pode ser desfeita.</p>
+                            </div>
+                            <div class="confirm-modal-footer">
+                                <button class="btn-cancel">❌ Não</button>
+                                <button class="btn-confirm">✅ Sim, Excluir</button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(modal);
+                    
+                    // Animar entrada
+                    setTimeout(() => modal.classList.add('show'), 10);
+                    
+                    // Botão Cancelar
+                    modal.querySelector('.btn-cancel').addEventListener('click', () => {
+                        modal.classList.remove('show');
+                        setTimeout(() => modal.remove(), 300);
+                    });
+                    
+                    // Botão Confirmar
+                    modal.querySelector('.btn-confirm').addEventListener('click', () => {
+                        form.submit();
+                    });
+                    
+                    // Fechar ao clicar fora
+                    modal.addEventListener('click', (e) => {
+                        if (e.target === modal) {
+                            modal.classList.remove('show');
+                            setTimeout(() => modal.remove(), 300);
+                        }
+                    });
+                });
+            });        });
+    </script>
+</body>
+</html>

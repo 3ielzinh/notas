@@ -1,0 +1,242 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Central de Ajuda - Repositório de Notas Técnicas</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/help.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <div class="layout-with-sidebar">
+        <!-- Header -->
+        {% include 'includes/header.html' %}
+        
+        <!-- Sidebar -->
+        {% include 'includes/sidebar.html' %}
+        
+        <!-- Conteúdo Principal -->
+        <main class="main-content">
+            <div class="container">
+                <!-- Cabeçalho da Página -->
+                <div class="help-header">
+                    <h1><i class="fa-solid fa-circle-question"></i> Central de Ajuda</h1>
+                    <p class="help-subtitle">Está com dificuldades para usar o sistema? Leia o tutorial abaixo!</p>
+                </div>
+
+                <!-- Cards Editáveis -->
+                {% if content_cards %}
+                    {% for card in content_cards %}
+                    <section class="help-section">
+                        <h2>{{ card.title }}</h2>
+                        <div class="card-content">
+                            {{ card.content|safe }}
+                        </div>
+                    </section>
+                    {% endfor %}
+                {% else %}
+                    <!-- Conteúdo Padrão com Abas -->
+                    <div class="tabs-container">
+                        <!-- Botões das Abas -->
+                        <div class="tabs-header">
+                            <button class="tab-button active" data-tab="guia-rapido">
+                                <strong>Guia Rápido</strong>
+                            </button>
+                            <button class="tab-button" data-tab="detalhes">
+                                <strong>Funcionalidades Detalhadas</strong>
+                            </button>
+                            <button class="tab-button" data-tab="avancado">
+                                <strong>Dicas Avançadas</strong>
+                            </button>
+                            <button class="tab-button" data-tab="glossario">
+                                <strong>Glossário</strong>
+                            </button>
+                        </div>
+
+                        <!-- Conteúdo das Abas -->
+                        <div class="tabs-content">
+                            <!-- Aba 1: Guia Rápido -->
+                            <div class="tab-pane active" id="guia-rapido">
+                                <section class="help-section">
+                                    <p>Siga estes três passos simples para encontrar o que você precisa.</p>
+                                    
+                                    <div class="quick-guide">
+                                        <div class="guide-card">
+                                            <h3><i class="fa-solid fa-keyboard"></i> Digite os Termos</h3>
+                                            <p>Use a barra de pesquisa na página <strong>Pesquisa</strong> para digitar palavras-chave, números de processo ou qualquer termo relevante. Pressione <strong>Buscar</strong>.</p>
+                                        </div>
+                                        
+                                        <div class="guide-card">
+                                            <h3><i class="fa-solid fa-list"></i> Analise os Resultados</h3>
+                                            <p>Navegue pela lista de resultados. Cada 'card' contém o <strong>título</strong>, o <strong>ano</strong>, a <strong>situação</strong> e um resumo com os termos destacados.</p>
+                                        </div>
+                                        
+                                        <div class="guide-card">
+                                            <h3><i class="fa-solid fa-download"></i> Baixe ou Visualize</h3>
+                                            <p>Clique em <strong>Baixar</strong> para salvar o PDF original ou expanda a seção <strong>Visualizar documento</strong> para ler o conteúdo diretamente na tela.</p>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+
+                            <!-- Aba 2: Funcionalidades Detalhadas -->
+                            <div class="tab-pane" id="detalhes">
+                                <section class="help-section">
+                                    <h2><i class="fa-solid fa-magnifying-glass"></i> A Busca em Detalhes</h2>
+                                    
+                                    <div class="details-grid">
+                                        <div class="details-content">
+                                            <ul>
+                                                <li><strong>Lógica "E" (AND):</strong> Cada palavra é obrigatória.</li>
+                                                <li><strong>Busca por Prefixo:</strong> Encontra palavras que começam com o termo.</li>
+                                                <li><strong>Sensibilidade a acentos:</strong> <code>cálculo</code> ≠ <code>calculo</code>.</li>
+                                                <li><strong>Não diferencia maiúsculas/minúsculas.</strong></li>
+                                            </ul>
+                                        </div>
+                                        
+                                        <div class="details-example">
+                                            <h4>Exemplo da Lógica AND</h4>
+                                            <p><code>abono permanência 2024</code></p>
+                                            <p>Retorna documentos com <strong>todas</strong> as palavras da busca.</p>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+
+                            <!-- Aba 3: Dicas Avançadas -->
+                            <div class="tab-pane" id="avancado">
+                                <section class="help-section">
+                                    <h2><i class="fa-solid fa-brain"></i> Torne-se um Usuário Avançado</h2>
+                                    <ul>
+                                        <li><strong>Combinando Filtros:</strong> Use busca + filtros para afinar resultados.</li>
+                                        <li><strong>Sem operadores de negação:</strong> Não há suporte para <code>NÃO</code> ou <code>-</code>.</li>
+                                        <li><strong>Sem busca exata:</strong> Aspas (<code>"..."</code>) não são suportadas.</li>
+                                        <li><strong>Relevância:</strong> Termos mais frequentes aparecem primeiro.</li>
+                                    </ul>
+                                </section>
+                            </div>
+
+                            <!-- Aba 4: Glossário -->
+                            <div class="tab-pane" id="glossario">
+                                <section class="help-section">
+                                    <h2><i class="fa-solid fa-book-open"></i> Termos e Conceitos</h2>
+                                    <dl class="glossary">
+                                        <dt>Nota Técnica:</dt>
+                                        <dd>Documento com parecer técnico ou jurídico fundamentado.</dd>
+                                        
+                                        <dt>Indexação:</dt>
+                                        <dd>Processo que cadastra textos para busca rápida.</dd>
+                                        
+                                        <dt>Snippet:</dt>
+                                        <dd>Trecho do texto exibido nos resultados da busca.</dd>
+                                        
+                                        <dt>Token [REMOVIDO]:</dt>
+                                        <dd>Marca que substitui dados sensíveis.</dd>
+                                    </dl>
+                                </section>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- FAQ -->
+                <section class="help-section">
+                    <h2><i class="fa-solid fa-circle-question"></i> Perguntas Frequentes (FAQ)</h2>
+                    
+                    <div class="faq-item">
+                        <h3 class="faq-question">
+                            <span>Os dados são atualizados em tempo real?</span>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </h3>
+                        <div class="faq-answer">
+                            <p><strong>Não.</strong> A indexação é manual e periódica pela DILAG, podendo haver um pequeno intervalo entre publicação e atualização.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <h3 class="faq-question">
+                            <span>Minha busca não retornou resultados. O que pode ter acontecido?</span>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </h3>
+                        <div class="faq-answer">
+                            <ol>
+                                <li>Termos muito restritivos — use menos palavras.</li>
+                                <li>Erros de digitação.</li>
+                                <li>Documento ainda não indexado.</li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <h3 class="faq-question">
+                            <span>Encontrei uma nota com erro. Como proceder?</span>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </h3>
+                        <div class="faq-answer">
+                            <p>Entre em contato com a equipe administradora, informando o nome do arquivo e a correção necessária.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Avisos e Contato -->
+                <div class="bottom-info">
+                    <div class="info-box warning-box">
+                        <h3><i class="fa-solid fa-triangle-exclamation"></i> Aviso de Validade</h3>
+                        <p>Este é um acervo histórico. Sempre confirme a validade de uma Nota Técnica com a legislação vigente.</p>
+                    </div>
+                    
+                    <div class="info-box contact-box">
+                        <h3><i class="fa-solid fa-headset"></i> Suporte e Contato</h3>
+                        <p><strong>Setor Responsável:</strong> Divisão de Legislação Aplicada à Gestão de Pessoas - DILAG</p>
+                        <p><strong>E-mail:</strong> dilag@inss.gov.br</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Sistema de Abas
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabPanes = document.querySelectorAll('.tab-pane');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const targetTab = this.getAttribute('data-tab');
+
+                    // Remove active de todos os botões e painéis
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabPanes.forEach(pane => pane.classList.remove('active'));
+
+                    // Adiciona active no botão clicado e no painel correspondente
+                    this.classList.add('active');
+                    document.getElementById(targetTab).classList.add('active');
+                });
+            });
+
+            // Sistema de FAQ Colapsável
+            const faqQuestions = document.querySelectorAll('.faq-question');
+            
+            faqQuestions.forEach(question => {
+                question.addEventListener('click', function() {
+                    const faqItem = this.parentElement;
+                    const isActive = faqItem.classList.contains('active');
+                    
+                    // Fecha todas as outras perguntas
+                    document.querySelectorAll('.faq-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    
+                    // Abre a pergunta clicada se não estava ativa
+                    if (!isActive) {
+                        faqItem.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

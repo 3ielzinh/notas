@@ -1,0 +1,490 @@
+/* =========================================
+   PÁGINA DE MANUAL
+   ========================================= */
+
+/* Info Box do Manual */
+.manual-info-box {
+    background: linear-gradient(135deg, #0a5aa6 0%, #084a8c 100%);
+    color: white;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.manual-info-box h1 {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 15px;
+    color: white;
+}
+
+.manual-info-box p {
+    font-size: 16px;
+    margin: 8px 0;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+/* Grid de Capítulos */
+.capitulos-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+/* Cards dos Capítulos */
+.capitulo-card-manual {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 20px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-left: 5px solid #0a5aa6;
+    min-height: auto;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.capitulo-card-manual:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.capitulo-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.capitulo-titulo-manual {
+    color: #0a5aa6;
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+.capitulo-descricao-manual {
+    color: #555;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 0;
+}
+
+.card-link-box {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #e0e0e0;
+    text-decoration: none !important;
+}
+
+.card-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #0a5aa6;
+    text-decoration: none !important;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: #f0f7ff;
+    transition: all 0.2s ease;
+}
+
+.card-link:hover {
+    background: #0a5aa6;
+    color: white;
+    transform: translateX(3px);
+    text-decoration: none !important;
+}
+
+.card-link i {
+    font-size: 13px;
+}
+
+.capitulo-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #0a5aa6;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.capitulo-link:hover {
+    color: #084a8c;
+    gap: 8px;
+}
+
+.capitulo-link i {
+    font-size: 12px;
+}
+
+/* Botões de Edição/Admin */
+.btn-edit-content {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #0a5aa6 0%, #084a8c 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.btn-edit-content:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(10, 90, 166, 0.3);
+}
+
+.btn-add-card {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.btn-add-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
+}
+
+.btn-add {
+    color: white !important;
+}
+
+.btn-manage-cards {
+    display: inline-block;
+    background: linear-gradient(135deg, #0a5aa6 0%, #084a8c 100%);
+    color: white;
+    padding: 12px 30px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 14px;
+    transition: all 0.3s;
+    box-shadow: 0 3px 10px rgba(10, 90, 166, 0.2);
+}
+
+.btn-manage-cards:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(10, 90, 166, 0.3);
+}
+
+/* Botões de Admin nos Cards */
+.card-admin-buttons {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+}
+
+.btn-card-edit,
+.btn-card-delete {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    border: none;
+}
+
+.btn-card-edit {
+    background: #0a5aa6;
+    color: white;
+}
+
+.btn-card-edit:hover {
+    background: #084a8c;
+    transform: scale(1.1);
+}
+
+.btn-card-delete {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-card-delete:hover {
+    background: #c82333;
+    transform: scale(1.1);
+}
+
+/* Banner de Modo de Edição */
+.edit-mode-banner {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Botões de Edição nos Cards */
+.card-edit-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.btn-card-action {
+    padding: 12px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+    flex: 1;
+    justify-content: center;
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+
+.btn-card-action.btn-card-edit {
+    background: #0a5aa6;
+    color: white;
+}
+
+.btn-card-action.btn-card-edit:hover {
+    background: #084a8c;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(10, 90, 166, 0.3);
+}
+
+.btn-card-action.btn-card-delete {
+    background: #dc3545;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-card-action.btn-card-delete:hover {
+    background: #c82333;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+/* Botões laterais nos cards */
+.card-side-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    min-width: 50px;
+}
+
+.btn-side-action {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.btn-side-edit {
+    background: #0a5aa6;
+    color: white;
+}
+
+.btn-side-edit:hover {
+    background: #084a8c;
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(10, 90, 166, 0.3);
+}
+
+.btn-side-delete {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-side-delete:hover {
+    background: #c82333;
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+}
+
+/* Modal de Confirmação */
+.confirm-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.confirm-modal.show {
+    opacity: 1;
+}
+
+.confirm-modal-content {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+    width: 90%;
+    overflow: hidden;
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.confirm-modal.show .confirm-modal-content {
+    transform: scale(1);
+}
+
+.confirm-modal-header {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+    padding: 25px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.confirm-modal-header i {
+    font-size: 32px;
+}
+
+.confirm-modal-header h3 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.confirm-modal-body {
+    padding: 30px;
+}
+
+.confirm-modal-body p {
+    margin: 0 0 15px 0;
+    font-size: 16px;
+    color: #333;
+    line-height: 1.6;
+}
+
+.confirm-card-title {
+    font-weight: 700;
+    color: #0a5aa6;
+    font-size: 18px;
+    padding: 15px;
+    background: #f5f7fa;
+    border-radius: 8px;
+    border-left: 4px solid #0a5aa6;
+}
+
+.confirm-warning {
+    color: #dc3545;
+    font-size: 14px;
+    font-style: italic;
+}
+
+.confirm-modal-footer {
+    padding: 20px 30px;
+    background: #f5f7fa;
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+}
+
+.confirm-modal-footer button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-cancel {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-cancel:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(108, 117, 125, 0.3);
+}
+
+.btn-confirm {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+}
+
+.btn-confirm:hover {
+    background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(220, 53, 69, 0.4);
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .capitulos-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .manual-info-box {
+        padding: 25px;
+    }
+    
+    .manual-info-box h1 {
+        font-size: 22px;
+    }
+}

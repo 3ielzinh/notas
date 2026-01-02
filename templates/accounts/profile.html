@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil - Sistema de Notas Técnicas INSS</title>
+    <link rel="stylesheet" href="/static/css/auth.css">
+</head>
+</head>
+<body>
+    <div class="container">
+        <div class="profile-card">
+            <div class="header">
+                <h1>👤 Meu Perfil</h1>
+                <div>
+                    <a href="{% url 'home' %}" class="btn btn-primary">Início</a>
+                    <a href="{% url 'accounts:logout' %}" class="btn btn-secondary">Sair</a>
+                </div>
+            </div>
+            
+            <div class="profile-info">
+                <div class="info-item">
+                    <label>Usuário</label>
+                    <div class="value">{{ user.username }}</div>
+                </div>
+                
+                <div class="info-item">
+                    <label>Nome</label>
+                    <div class="value">{{ user.first_name|default:"Não informado" }} {{ user.last_name|default:"" }}</div>
+                </div>
+                
+                <div class="info-item">
+                    <label>Email</label>
+                    <div class="value">{{ user.email|default:"Não informado" }}</div>
+                </div>
+                
+                <div class="info-item">
+                    <label>Perfil de Acesso</label>
+                    <div class="value">
+                        {% if profile.role == 'ADMIN' %}
+                            <span class="badge badge-admin">🔑 Administrador</span>
+                        {% elif profile.role == 'ANALISTA' %}
+                            <span class="badge badge-analyst">📊 Analista</span>
+                        {% else %}
+                            <span class="badge badge-viewer">👁️ Visualizador</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="permissions">
+                <h2>🔐 Permissões</h2>
+                <ul class="permission-list">
+                    <li class="permission-item allowed">
+                        <i>✅</i> Visualizar notas
+                    </li>
+                    <li class="permission-item {% if profile.can_edit_notes %}allowed{% else %}denied{% endif %}">
+                        <i>{% if profile.can_edit_notes %}✅{% else %}❌{% endif %}</i> Editar notas
+                    </li>
+                    <li class="permission-item {% if profile.can_import_notes %}allowed{% else %}denied{% endif %}">
+                        <i>{% if profile.can_import_notes %}✅{% else %}❌{% endif %}</i> Importar notas
+                    </li>
+                    <li class="permission-item {% if profile.can_manage_terms %}allowed{% else %}denied{% endif %}">
+                        <i>{% if profile.can_manage_terms %}✅{% else %}❌{% endif %}</i> Gerenciar termos
+                    </li>
+                    <li class="permission-item {% if profile.can_delete_notes %}allowed{% else %}denied{% endif %}">
+                        <i>{% if profile.can_delete_notes %}✅{% else %}❌{% endif %}</i> Excluir notas
+                    </li>
+                    <li class="permission-item {% if profile.is_admin %}allowed{% else %}denied{% endif %}">
+                        <i>{% if profile.is_admin %}✅{% else %}❌{% endif %}</i> Acesso admin
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

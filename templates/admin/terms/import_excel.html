@@ -1,0 +1,60 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 40px auto; color: #000;">
+    <h1 style="color: #000;">📊 Importar Termos de Anonimização</h1>
+    
+    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; color: #000;">
+        <h3 style="color: #000;">📋 Formato da Planilha</h3>
+        <p style="color: #000;">A planilha <strong>base.xlsx</strong> deve ter as seguintes colunas (na ordem):</p>
+        <ol style="color: #000;">
+            <li style="color: #000;"><strong>Coluna A:</strong> Matrícula</li>
+            <li style="color: #000;"><strong>Coluna B:</strong> Nome completo</li>
+            <li style="color: #000;"><strong>Coluna C:</strong> CPF</li>
+        </ol>
+        <p style="color: #000;"><em>A primeira linha (cabeçalho) será ignorada.</em></p>
+    </div>
+
+    <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107; color: #000;">
+        <strong style="color: #000;">⚠️ Atenção:</strong> Termos duplicados serão automaticamente ignorados.
+    </div>
+
+    <form method="post" enctype="multipart/form-data" style="margin-top: 30px;">
+        {% csrf_token %}
+        
+        <div style="margin-bottom: 20px;">
+            <label for="excel_file" style="display: block; margin-bottom: 10px; font-weight: bold; color: #000;">
+                Selecione o arquivo Excel (.xlsx):
+            </label>
+            <input type="file" 
+                   name="excel_file" 
+                   id="excel_file" 
+                   accept=".xlsx" 
+                   required
+                   style="padding: 10px; border: 2px solid #ddd; border-radius: 4px; width: 100%; color: #000;">
+        </div>
+
+        <div style="margin-top: 30px;">
+            <button type="submit" 
+                    style="background: #417690; color: white; padding: 12px 30px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin-right: 10px;">
+                🚀 Importar Termos
+            </button>
+            <a href="{% url 'admin:terms_term_changelist' %}" 
+               style="padding: 12px 30px; border: 1px solid #ddd; border-radius: 5px; text-decoration: none; color: #000; display: inline-block; background: #fff;">
+                ❌ Cancelar
+            </a>
+        </div>
+    </form>
+
+    <div style="background: #e7f3ff; padding: 15px; border-radius: 8px; margin-top: 30px; border-left: 4px solid #2196F3; color: #000;">
+        <h4 style="color: #000;">💡 Como funciona:</h4>
+        <ul style="color: #000;">
+            <li style="color: #000;">✅ Matrículas → Categoria "Outro"</li>
+            <li style="color: #000;">✅ Nomes → Categoria "Nome"</li>
+            <li style="color: #000;">✅ CPFs → Categoria "CPF" (formatação automática)</li>
+            <li style="color: #000;">✅ Normalização automática para busca</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

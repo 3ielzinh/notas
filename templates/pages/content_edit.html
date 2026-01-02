@@ -1,0 +1,79 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Conteúdo - Repositório de Notas Técnicas</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/manual.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <div class="layout-with-sidebar">
+        <!-- Header -->
+        {% include 'includes/header.html' %}
+        
+        <!-- Sidebar -->
+        {% include 'includes/sidebar.html' %}
+        
+        <!-- Conteúdo Principal -->
+        <main class="main-content">
+            <div class="edit-form-container" style="max-width: 900px; margin: 0 auto; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);">
+                <div class="edit-form-header" style="background: linear-gradient(135deg, #0a5aa6 0%, #084a8c 100%); color: white; padding: 25px 30px; margin: -40px -40px 30px -40px; border-radius: 15px 15px 0 0;">
+                    <h1 style="margin: 0; font-size: 28px; font-weight: 700; display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-edit"></i>
+                        Editar Conteúdo da Página
+                    </h1>
+                    <p style="margin: 10px 0 0 0; font-size: 14px; opacity: 0.9;">Editando: <strong>{{ page_display }}</strong></p>
+                </div>
+
+                <!-- Formulário -->
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="form-group" style="margin-bottom: 25px;">
+                        <label for="{{ form.title.id_for_label }}" style="display: block; font-weight: 600; color: #333; margin-bottom: 8px; font-size: 15px;">
+                            {{ form.title.label }}
+                            <span style="color: #dc3545; margin-left: 3px;">*</span>
+                        </label>
+                        {{ form.title }}
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 25px;">
+                        <label for="{{ form.content.id_for_label }}" style="display: block; font-weight: 600; color: #333; margin-bottom: 8px; font-size: 15px;">
+                            {{ form.content.label }}
+                            <span style="color: #dc3545; margin-left: 3px;">*</span>
+                        </label>
+                        {{ form.content }}
+                        <div style="font-size: 13px; color: #666; margin-top: 5px; font-style: italic;">
+                            Use HTML para formatar: &lt;h2&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;strong&gt;, etc.
+                        </div>
+                    </div>
+
+                    <div class="form-actions" style="display: flex; gap: 15px; margin-top: 35px; padding-top: 25px; border-top: 2px solid #e0e0e0;">
+                        <button type="submit" class="btn-form btn-primary" style="padding: 14px 30px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #0a5aa6 0%, #084a8c 100%); color: white; flex: 1;">
+                            <i class="fas fa-save"></i>
+                            Salvar Alterações
+                        </button>
+                        <a href="{% if page_key == 'help' %}{% url 'core:help' %}?edit=1{% else %}{% url 'core:manual' %}?edit=1{% endif %}" class="btn-form btn-secondary" style="padding: 14px 30px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; background: #6c757d; color: white;">
+                            <i class="fas fa-times"></i>
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Auto-focus no primeiro campo
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstInput = document.querySelector('.form-control');
+            if (firstInput) {
+                firstInput.focus();
+            }
+        });
+    </script>
+</body>
+</html>

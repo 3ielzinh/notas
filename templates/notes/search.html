@@ -1,0 +1,211 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesquisa de Notas - DILAG</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/notes.css' %}">
+</head>
+<body>
+    <!-- Header Principal -->
+    {% include 'includes/header.html' %}
+    
+    <div class="layout-with-sidebar">
+        <!-- Sidebar -->
+        {% include 'includes/sidebar.html' %}
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🔎 Pesquisa de Notas Técnicas</h1>
+            <p>Repositório de Notas Técnicas - DILAG</p>
+        </div>
+
+        <!-- Search Box -->
+        <div class="search-box">
+            <form method="get" class="search-form">
+                <input 
+                    type="text" 
+                    name="q" 
+                    class="search-input" 
+                    placeholder="Pesquise por palavra-chave... (ex: abono permanência 2024)"
+                    value="{{ query }}"
+                >
+                
+                <select name="year" class="year-select">
+                    {% for year in available_years %}
+                        <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>
+                            Ano: {{ year }}
+                        </option>
+                    {% endfor %}
+                </select>
+                
+                <button type="submit" class="btn-search">🔍 Buscar</button>
+            </form>
+        </div>
+
+        <!-- Results -->
+        {% if not search_submitted %}
+            <div class="info-message">
+                <p>💡 Informe termos de pesquisa ou selecione um ano e clique em <strong>Buscar</strong>.</p>
+            </div>
+        {% else %}
+            {% if notes %}
+                <div class="results-header">
+                    <span class="results-count">📊 {{ paginator.count }} resultado(s) encontrado(s)</span>
+                </div>
+
+                <!-- Group by Year -->
+                {% regroup notes by note_year as notes_by_year %}
+                {% for year_group in notes_by_year %}
+                    <div class="year-group-title">
+                        📅 Ano {{ year_group.grouper|default:"Sem ano" }}
+                    </div>
+                    
+                    {% for note in year_group.list %}
+                        <div class="note-card">
+                            <div class="note-title">
+                                {{ note.note_name }}
+                            </div>
+                            
+                            <div class="meta-line">
+                                <span>{{ note.note_year|default:"S/A" }}</span>
+                                {% if note.situacao == 'vigente' %}
+                                    <span class="badge badge-vigente">VIGENTE</span>
+                                {% elif note.situacao == 'parcialmente_revogada' %}
+                                    <span class="badge badge-parcial">PARCIALMENTE REVOGADA</span>
+                                {% elif note.situacao == 'revogada' %}
+                                    <span class="badge badge-revogada">REVOGADA</span>
+                                {% else %}
+                                    <span class="badge badge-neutral">NÃO CLASSIFICADA</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="note-snippet">
+                                {{ note.sanitized_text|truncatewords:50 }}
+                            </div>
+                            
+                            <div class="note-actions">
+                                {% if note.has_pdf %}
+                                    <button class="btn-view" onclick="openPdfModal('{% url 'notes:view_pdf' note.id %}', '{{ note.note_name|escapejs }}')">
+                                        👁️ Visualizar PDF
+                                    </button>
+                                    <a href="{% url 'notes:download_pdf' note.id %}" class="btn-download">
+                                        ⬇️ Baixar PDF
+                                    </a>
+                                {% else %}
+                                    <span class="btn-download btn-disabled">📄 PDF não disponível</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+
+                <!-- Pagination -->
+                {% if paginator.num_pages > 1 %}
+                <div class="pagination">
+                    {% if page_obj.has_previous %}
+                        <a href="?q={{ query }}&year={{ selected_year }}&page={{ page_obj.previous_page_number }}">⬅️ Anterior</a>
+                    {% else %}
+                        <span class="disabled">⬅️ Anterior</span>
+                    {% endif %}
+
+                    <span class="page-info">Página {{ page_obj.number }} de {{ paginator.num_pages }}</span>
+
+                    {% if page_obj.has_next %}
+                        <a href="?q={{ query }}&year={{ selected_year }}&page={{ page_obj.next_page_number }}">Próxima ➡️</a>
+                    {% else %}
+                        <span class="disabled">Próxima ➡️</span>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="no-results">
+                    <h3>🔍 Nenhum resultado encontrado</h3>
+                    <p>Tente usar outros termos de busca ou selecione um ano diferente.</p>
+                </div>
+            {% endif %}
+        {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para visualização de PDF -->
+    <div id="pdfModal" class="pdf-modal">
+        <div class="pdf-modal-content">
+            <div class="pdf-modal-header">
+                <h3 id="pdfModalTitle">Visualizando PDF</h3>
+                <button class="pdf-modal-close" onclick="closePdfModal()">&times;</button>
+            </div>
+            <div class="pdf-modal-body">
+                <iframe id="pdfViewer" src="" frameborder="0"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openPdfModal(pdfUrl, filename) {
+            const modal = document.getElementById('pdfModal');
+            const iframe = document.getElementById('pdfViewer');
+            const title = document.getElementById('pdfModalTitle');
+            
+            title.textContent = filename || 'Visualizando PDF';
+            
+            // Faz requisição com credenciais para buscar o PDF
+            fetch(pdfUrl, {
+                method: 'GET',
+                credentials: 'same-origin'  // Inclui cookies de sessão
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar PDF');
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                // Cria URL do blob e define no iframe
+                const blobUrl = URL.createObjectURL(blob);
+                iframe.src = blobUrl;
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao carregar o PDF. Tente novamente.');
+            });
+        }
+
+        function closePdfModal() {
+            const modal = document.getElementById('pdfModal');
+            const iframe = document.getElementById('pdfViewer');
+            
+            // Revoga a URL do blob para liberar memória
+            if (iframe.src) {
+                URL.revokeObjectURL(iframe.src);
+            }
+            
+            modal.style.display = 'none';
+            iframe.src = '';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Fechar modal ao clicar fora dele
+        document.getElementById('pdfModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePdfModal();
+            }
+        });
+
+        // Fechar modal com tecla ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closePdfModal();
+            }
+        });
+    </script>
+</body>
+</html>
