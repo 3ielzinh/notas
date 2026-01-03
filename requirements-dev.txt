@@ -1,0 +1,14 @@
+# Dependências de Desenvolvimento
+
+# Inclui todas as dependências de produção
+-r requirements.txt
+
+# Testes
+pytest==7.4.3
+pytest-django==4.7.0
+pytest-cov==4.1.0
+
+# Qualidade de Código
+black==23.12.1
+flake8==7.0.0
+isort==5.13.2
