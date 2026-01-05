@@ -1,5 +1,5 @@
 # Dockerfile para Django - Sistema de Notas Técnicas
-FROM python:3.14.2-slim
+FROM python:3.14-slim
 
 # Variáveis de ambiente
 ENV PYTHONUNBUFFERED=1 \
@@ -9,9 +9,12 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
 # Instala dependências do sistema (wget para healthcheck)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    wget \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends wget && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Diretório de trabalho
 WORKDIR /app
