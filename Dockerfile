@@ -8,6 +8,11 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
+# Instala dependências do sistema (wget para healthcheck)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
 # Diretório de trabalho
 WORKDIR /app
 
@@ -17,25 +22,25 @@ COPY requirements.txt .
 # Instala dependências de produção do requirements.txt
 RUN pip install --no-cache-dir --progress-bar off --no-compile -r requirements.txt
 
-# Copia código da aplicação
-COPY . .
-
-# Cria usuário django antes de criar diretórios
+# Cria usuário django
 RUN useradd -m -u 1000 django
 
-# Cria diretórios necessários e define permissões
+# Copia código da aplicação
+COPY --chown=django:django . .
+
+# Cria diretórios necessários
 RUN mkdir -p /app/staticfiles /app/data/backups && \
-    chown -R django:django /app
+    chown -R django:django /app/staticfiles /app/data/backups
 
-# Coleta arquivos estáticos como usuário django
-USER django
-RUN python manage.py collectstatic --noinput || true
-
-# Script de inicialização
+# Copia e configura script de inicialização
 COPY --chown=django:django entrypoint.sh /entrypoint.sh
-USER root
 RUN chmod +x /entrypoint.sh
+
+# Muda para usuário django
 USER django
+
+# Coleta arquivos estáticos
+RUN python manage.py collectstatic --noinput || true
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "300"]

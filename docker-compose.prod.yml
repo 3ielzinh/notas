@@ -12,7 +12,6 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./backups:/backups
     networks:
       - notas_network
     healthcheck:
@@ -48,7 +47,7 @@ services:
     networks:
       - notas_network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8000/"]
       interval: 30s
       timeout: 10s
       retries: 3

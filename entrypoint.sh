@@ -10,5 +10,8 @@ done
 echo "PostgreSQL disponível! Aplicando migrações..."
 python manage.py migrate --noinput
 
+echo "Coletando arquivos estáticos..."
+python manage.py collectstatic --noinput --clear || true
+
 echo "Iniciando aplicação..."
 exec "$@"
